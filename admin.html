@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Top Pizza</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background: #f4f6f8;
+            color: #333;
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            color: var(--primary-color);
+        }
+
+        .section-block {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .item-list {
+            margin-top: 10px;
+        }
+
+        .admin-item {
+            display: flex;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
+        .admin-item input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .flex-grow {
+            flex-grow: 1;
+        }
+
+        .btn-add {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            display: block;
+            margin-top: 20px;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-menu button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #ddd;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .tab-menu button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .admin-view {
+            display: none;
+        }
+
+        .admin-view.active {
+            display: block;
+        }
+
+        .image-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-container">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>🍕 Painel Administrativo</h1>
+            <a href="index.html" target="_blank" style="text-decoration:none; color:var(--primary-color);">Ver Site <i
+                    class="fas fa-external-link-alt"></i></a>
+        </div>
+
+        <div class="tab-menu">
+            <button class="active" onclick="switchTab('products')">Produtos</button>
+            <button onclick="switchTab('neighborhoods')">Bairros & Taxas</button>
+        </div>
+
+        <!-- PRODUCTS TAB -->
+        <div id="view-products" class="admin-view active">
+            <div id="products-container">
+                <!-- Injected via JS -->
+            </div>
+            <button class="btn-add" onclick="addNewCategory()">+ Nova Categoria</button>
+        </div>
+
+        <!-- NEIGHBORHOODS TAB -->
+        <div id="view-neighborhoods" class="admin-view">
+            <h2>📍 Bairros e Taxas de Entrega</h2>
+            <div id="neighborhoods-list" class="item-list">
+                <!-- Injected via JS -->
+            </div>
+            <button class="btn-add" onclick="addNeighborhood()">+ Adicionar Bairro</button>
+        </div>
+
+        <button class="btn-save" onclick="saveChanges()">💾 SALVAR ALTERAÇÕES</button>
+    </div>
+
+    <script>
+        document.write(`<script src="data.js?v=${Date.now()}"><\/script>`);
+    </script>
+    <script>
+        let data = menuData; // from data.js
+
+        // --- TABS ---
+        function switchTab(tab) {
+            document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- RENDER ---
+        function render() {
+            renderProducts();
+            renderNeighborhoods();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            data.categories.forEach((cat, catIndex) => {
+                const catDiv = document.createElement('div');
+                catDiv.className = 'section-block';
+
+                catDiv.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#eee; padding:10px; border-radius:5px;">
+                        <input type="text" value="${cat.name}" onchange="updateCategory(${catIndex}, 'name', this.value)" style="font-weight:bold; font-size:16px; width:70%;">
+                        <button class="btn-delete" onclick="deleteCategory(${catIndex})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                const productList = document.createElement('div');
+                productList.className = 'item-list';
+
+                const products = data.products[cat.id] || [];
+                products.forEach((prod, prodIndex) => {
+                    const item = document.createElement('div');
+                    item.className = 'admin-item';
+                    item.innerHTML = `
+                         <img src="${prod.image}" class="image-preview" title="URL da Imagem">
+                        <div class="flex-grow">
+                            <input type="text" placeholder="Nome" value="${prod.name}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'name', this.value)" style="width:100%; margin-bottom:5px;">
+                            <input type="text" placeholder="Descrição" value="${prod.description}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'description', this.value)" style="width:100%; margin-bottom:5px;">
+                            <div style="display:flex; gap:5px;">
+                                <input type="number" placeholder="Preço" value="${prod.price}" step="0.01" onchange="updateProduct('${cat.id}', ${prodIndex}, 'price', this.value)" style="width:30%;">
+                                <input type="text" placeholder="URL Imagem" value="${prod.image}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'image', this.value)" style="width:70%;">
+                            </div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteProduct('${cat.id}', ${prodIndex})"><i class="fas fa-trash"></i></button>
+                    `;
+                    productList.appendChild(item);
+                });
+
+                catDiv.appendChild(productList);
+
+                const addBtn = document.createElement('button');
+                addBtn.className = 'btn-add';
+                addBtn.style.background = '#3498db';
+                addBtn.style.fontSize = '12px';
+                addBtn.innerText = '+ Adicionar Produto em ' + cat.name;
+                addBtn.onclick = () => addProduct(cat.id);
+                catDiv.appendChild(addBtn);
+
+                container.appendChild(catDiv);
+            });
+        }
+
+        function renderNeighborhoods() {
+            const list = document.getElementById('neighborhoods-list');
+            list.innerHTML = '';
+
+            data.neighborhoods.forEach((n, index) => {
+                const item = document.createElement('div');
+                item.className = 'admin-item';
+                item.innerHTML = `
+                    <div class="flex-grow" style="display:flex; gap:10px;">
+                        <input type="text" placeholder="Nome do Bairro" value="${n.name}" onchange="updateNeighborhood(${index}, 'name', this.value)" style="flex:2;">
+                        <input type="number" placeholder="Taxa R$" value="${n.fee}" step="0.01" onchange="updateNeighborhood(${index}, 'fee', this.value)" style="flex:1;">
+                    </div>
+                    <button class="btn-delete" onclick="deleteNeighborhood(${index})"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- LOGIC ---
+        function updateCategory(index, field, value) {
+            data.categories[index][field] = value;
+        }
+
+        function deleteCategory(index) {
+            if (confirm('Tem certeza? Isso apagará todos os produtos desta categoria.')) {
+                const id = data.categories[index].id;
+                delete data.products[id];
+                data.categories.splice(index, 1);
+                render();
+            }
+        }
+
+        function addNewCategory() {
+            const id = 'cat_' + Date.now();
+            data.categories.push({ id: id, name: 'Nova Categoria' });
+            data.products[id] = [];
+            render();
+        }
+
+        function updateProduct(catId, index, field, value) {
+            if (field === 'price') value = parseFloat(value);
+            data.products[catId][index][field] = value;
+            // Update UI image preview specifically if image changed
+            if (field === 'image') render();
+        }
+
+        function addProduct(catId) {
+            data.products[catId].push({
+                id: 'prod_' + Date.now(),
+                name: 'Novo Produto',
+                description: 'Descrição...',
+                price: 0,
+                image: 'img/pizza.png',
+                isPopular: false
+            });
+            render();
+        }
+
+        function deleteProduct(catId, index) {
+            if (confirm('Deletar produto?')) {
+                data.products[catId].splice(index, 1);
+                render();
+            }
+        }
+
+        function updateNeighborhood(index, field, value) {
+            if (field === 'fee') value = parseFloat(value);
+            data.neighborhoods[index][field] = value;
+        }
+
+        function addNeighborhood() {
+            data.neighborhoods.push({ name: 'Novo Bairro', fee: 0 });
+            render();
+        }
+
+        function deleteNeighborhood(index) {
+            data.neighborhoods.splice(index, 1);
+            render();
+        }
+
+        async function saveChanges() {
+            try {
+                // Ensure format is correct
+                // API call to localhost:3001/admin/save-menu
+                // Since this runs on client, we assume relative path or absolute URL if port differs.
+                // Assuming webhook server runs on same host but port 3001.
+                // But wait, the website is static file served? Or served via express?
+                // The current setup seems to be static files. The User opens them locally or via some server?
+                // The user's environment is Windows, likely opening file:// or via VSCode Live Server.
+                // We need to hit localhost:3001.
+
+                const response = await fetch('http://localhost:3001/admin/save-menu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Alterações salvas com sucesso!');
+                } else {
+                    alert('Erro ao salvar. Verifique se o servidor do bot está rodando.');
+                }
+            } catch (e) {
+                alert('Erro de conexão: ' + e.message);
+            }
+        }
+
+        window.onload = render;
+    </script>
+</body>
+
+</html>
