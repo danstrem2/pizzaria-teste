@@ -136,7 +136,10 @@ function renderProducts() {
             item.onclick = () => openModal(p);
             item.innerHTML = `
                 <div class="product-info">
-                    <div class="product-name">${p.name}</div>
+                    <div class="product-name">
+                        ${p.name} 
+                        ${p.isPopular ? '<span class="badge-popular"><i class="fas fa-star"></i> Top</span>' : ''}
+                    </div>
                     <div class="product-desc">${p.description}</div>
                     <div class="product-price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
                 </div>
@@ -254,13 +257,32 @@ function addToCartFromModal() {
 }
 
 // --- Cart Logic ---
+const floatingCartBar = document.getElementById('floating-cart-bar');
+const floatingCount = document.getElementById('floating-count');
+const floatingTotal = document.getElementById('floating-total');
+
 function updateCartUI() {
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+    const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+    // Update Badge
     if (totalQty > 0) {
         cartBadge.style.display = 'inline-block';
         cartBadge.innerText = totalQty;
     } else {
         cartBadge.style.display = 'none';
+    }
+
+    // Update Floating Bar
+    if (floatingCartBar) {
+        if (totalQty > 0) {
+            floatingCount.innerText = totalQty;
+            floatingTotal.innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+            floatingCartBar.classList.add('visible');
+            // Adjust body padding to avoid overlap if needed, but styling handles it usually
+        } else {
+            floatingCartBar.classList.remove('visible');
+        }
     }
 }
 
@@ -354,7 +376,36 @@ function updateCheckoutTotal() {
     }
 }
 
+function checkOpeningHours() {
+    if (!menuData.openingHours) return { isOpen: true }; // Default open if not set
+
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+    const config = menuData.openingHours[day];
+
+    if (!config || !config.active) {
+        return { isOpen: false, msg: 'Estamos fechados hoje! 😴' };
+    }
+
+    if (currentTime < config.open || currentTime > config.close) {
+        return { isOpen: false, msg: `Estamos fechados! 🕒\nNosso horário hoje é das ${config.open} às ${config.close}.` };
+    }
+
+    return { isOpen: true };
+}
+
 function checkout() {
+    // Validate Hours
+    const status = checkOpeningHours();
+    if (!status.isOpen) {
+        alert(status.msg);
+        return;
+    }
+
     if (cart.length === 0) return;
     checkoutModal.classList.add('open');
     updateCheckoutTotal();
@@ -431,7 +482,9 @@ function finalizeCheckout() {
     message += `Aguardo a confirmação!`;
 
     const encoded = encodeURIComponent(message);
-    const botNumber = '558894391768';
+
+    // Use AppConfig if available, otherwise fallback
+    const botNumber = (window.AppConfig && window.AppConfig.botNumber) ? window.AppConfig.botNumber : '558894391768';
 
     // Open chat directly with the bot (using api.whatsapp.com is more robust for desktop)
     window.location.href = `https://api.whatsapp.com/send?phone=${botNumber}&text=${encoded}`;

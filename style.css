@@ -196,6 +196,19 @@ body {
     object-fit: cover;
 }
 
+.badge-popular {
+    background: #f59e0b;
+    /* Gold */
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+
 /* Bottom Nav */
 .bottom-nav {
     position: fixed;
@@ -375,4 +388,67 @@ body {
     font-weight: 600;
     cursor: pointer;
     margin-top: 15px;
+}
+
+/* Floating Cart Bar (iFood Style) */
+.floating-cart-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #ea1d2c;
+    /* iFood Red or inherit Primary */
+    color: white;
+    padding: 15px;
+    display: none;
+    /* Hidden by default */
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    animation: slideUp 0.3s ease-out;
+}
+
+.floating-cart-bar.visible {
+    display: flex;
+}
+
+.cart-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#floating-count {
+    background: white;
+    color: #ea1d2c;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.cart-text {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#floating-total {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
 }

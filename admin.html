@@ -5,183 +5,498 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - Top Pizza</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Use Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --primary-color: #3b82f6;
+            /* Blue */
+            --primary-dark: #2563eb;
+            --secondary-color: #1e293b;
+            /* Dark Slate (Sidebar) */
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #334155;
+            --text-light: #94a3b8;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
         body {
-            padding: 20px;
-            background: #f4f6f8;
-            color: #333;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
         }
 
-        .admin-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        h1,
-        h2 {
+        .brand {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: var(--primary-color);
         }
 
-        .section-block {
-            margin-bottom: 30px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-        }
-
-        .item-list {
-            margin-top: 10px;
-        }
-
-        .admin-item {
-            display: flex;
-            gap: 10px;
-            background: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            align-items: center;
-        }
-
-        .admin-item input {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .flex-grow {
-            flex-grow: 1;
-        }
-
-        .btn-add {
-            background: #2ecc71;
+        .media-link {
+            text-decoration: none;
             color: white;
+            font-size: 14px;
+            margin-top: auto;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .media-link:hover {
+            opacity: 1;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: none;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            color: var(--text-light);
+            padding: 12px 15px;
+            text-align: left;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
         }
 
         .btn-save {
-            background: var(--secondary-color);
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 18px;
-            width: 100%;
-            display: block;
-            margin-top: 20px;
-        }
-
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .tab-menu {
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+            transition: 0.2s;
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            align-items: center;
+            gap: 8px;
         }
 
-        .tab-menu button {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #ddd;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
+        .btn-save:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
-        .tab-menu button.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .admin-view {
+        /* VIEWS */
+        .view-section {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        .admin-view.active {
+        .view-section.active {
             display: block;
         }
 
-        .image-preview {
-            width: 50px;
-            height: 50px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CARDS & INPUTS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: 0.3s;
+        }
+
+        .btn-icon:hover {
+            color: var(--danger-color);
+        }
+
+        .btn-add-sm {
+            background: var(--bg-color);
+            color: var(--primary-color);
+            border: 2px dashed var(--border-color);
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-add-sm:hover {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 15px;
+            align-items: start;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
             object-fit: cover;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background: #eee;
+            background: #ddd;
+        }
+
+        /* HOURS TABLE */
+        .hours-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hours-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-label {
+            font-weight: 600;
+        }
+
+        /* TOGGLE SWITCH */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .btn-star {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #cbd5e1;
+            /* Gray */
+            font-size: 18px;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-star:hover {
+            color: #f59e0b;
+        }
+
+        .btn-star.active {
+            color: #f59e0b;
+            /* Gold */
         }
     </style>
 </head>
 
 <body>
 
-    <div class="admin-container">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h1>🍕 Painel Administrativo</h1>
-            <a href="index.html" target="_blank" style="text-decoration:none; color:var(--primary-color);">Ver Site <i
-                    class="fas fa-external-link-alt"></i></a>
-        </div>
-
-        <div class="tab-menu">
-            <button class="active" onclick="switchTab('products')">Produtos</button>
-            <button onclick="switchTab('neighborhoods')">Bairros & Taxas</button>
-        </div>
-
-        <!-- PRODUCTS TAB -->
-        <div id="view-products" class="admin-view active">
-            <div id="products-container">
-                <!-- Injected via JS -->
-            </div>
-            <button class="btn-add" onclick="addNewCategory()">+ Nova Categoria</button>
-        </div>
-
-        <!-- NEIGHBORHOODS TAB -->
-        <div id="view-neighborhoods" class="admin-view">
-            <h2>📍 Bairros e Taxas de Entrega</h2>
-            <div id="neighborhoods-list" class="item-list">
-                <!-- Injected via JS -->
-            </div>
-            <button class="btn-add" onclick="addNeighborhood()">+ Adicionar Bairro</button>
-        </div>
-
-        <button class="btn-save" onclick="saveChanges()">💾 SALVAR ALTERAÇÕES</button>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand"><i class="fas fa-pizza-slice"></i> Top Pizza</div>
+        <ul class="nav-items">
+            <li class="nav-item"><button class="nav-btn active" onclick="switchTab('products')"><i
+                        class="fas fa-box"></i> Produtos</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('neighborhoods')"><i
+                        class="fas fa-map-marker-alt"></i> Bairros & Taxas</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('hours')"><i class="fas fa-clock"></i>
+                    Horários</button></li>
+        </ul>
+        <a href="index.html" target="_blank" class="media-link"><i class="fas fa-external-link-alt"></i> Ver Loja
+            Online</a>
     </div>
 
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <div class="header">
+            <h1 class="page-title" id="page-title">Gerenciar Produtos</h1>
+            <button class="btn-save" onclick="saveChanges()"><i class="fas fa-save"></i> Salvar Alterações</button>
+        </div>
+
+        <!-- PRODUCTS VIEW -->
+        <div id="view-products" class="view-section active">
+            <div id="products-container"></div>
+            <button class="btn-save" style="width:100%; margin-top:20px; background:#2ecc71;"
+                onclick="addNewCategory()">+ Nova Categoria</button>
+        </div>
+
+        <!-- NEIGHBORHOODS VIEW -->
+        <div id="view-neighborhoods" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">Locais de Entrega</span>
+                    <button class="btn-add-sm" style="width:auto;" onclick="addNeighborhood()">+ Adicionar</button>
+                </div>
+                <div id="neighborhoods-list"></div>
+            </div>
+        </div>
+
+        <!-- HOURS VIEW -->
+        <div id="view-hours" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">Horário de Funcionamento</span>
+                </div>
+                <div id="hours-list">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+            <p style="color:var(--text-light); font-size:14px; margin-top:10px;">* Desmarque o botão para definir como
+                "Fechado" no dia.</p>
+        </div>
+
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal"
+        style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div class="card" style="width:300px; padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="color:var(--primary-color);"><i class="fas fa-lock"></i> Login</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="admin-user" class="form-input" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="admin-pass" class="form-input" placeholder="***">
+            </div>
+            <button class="btn-save" style="width:100%; justify-content:center;"
+                onclick="performLogin()">Entrar</button>
+            <p id="login-error" style="color:red; font-size:12px; margin-top:10px; display:none;">Credenciais Inválidas!
+            </p>
+        </div>
+    </div>
+
+    <!-- LOAD DATA DYNAMICALLY -->
     <script>
         document.write(`<script src="data.js?v=${Date.now()}"><\/script>`);
     </script>
-    <script>
-        let data = menuData; // from data.js
 
-        // --- TABS ---
+    <script>
+        // Init Check
+        if (typeof menuData === 'undefined') {
+            alert('Erro ao carregar dados. Verifique data.js');
+        }
+
+        let data = menuData;
+        const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        // Ensure hours structure exists
+        if (!data.openingHours) {
+            data.openingHours = {};
+            days.forEach((day, i) => {
+                data.openingHours[i] = { open: '18:00', close: '23:00', active: true };
+            });
+        }
+
+        // --- AUTH LOGIC ---
+        function checkAuth() {
+            const auth = sessionStorage.getItem('adminAuth');
+            if (auth) {
+                document.getElementById('login-modal').style.display = 'none';
+            } else {
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function performLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if (user && pass) {
+                const authValues = { login: user, password: pass };
+                sessionStorage.setItem('adminAuth', JSON.stringify(authValues));
+                document.getElementById('login-modal').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // --- NAVIGATION ---
         function switchTab(tab) {
-            document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active'));
+            // Update Sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active'); // Needs event passed or use query
+
+            // Update View
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + tab).classList.add('active');
-            event.target.classList.add('active');
+
+            // Update Title
+            const titles = { 'products': 'Gerenciar Produtos', 'neighborhoods': 'Bairros e Taxas', 'hours': 'Horários de Funcionamento' };
+            document.getElementById('page-title').innerText = titles[tab];
         }
 
         // --- RENDER ---
         function render() {
+            checkAuth(); // Check on init
             renderProducts();
             renderNeighborhoods();
+            renderHours();
         }
 
         function renderProducts() {
@@ -189,160 +504,183 @@
             container.innerHTML = '';
 
             data.categories.forEach((cat, catIndex) => {
-                const catDiv = document.createElement('div');
-                catDiv.className = 'section-block';
-
-                catDiv.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#eee; padding:10px; border-radius:5px;">
-                        <input type="text" value="${cat.name}" onchange="updateCategory(${catIndex}, 'name', this.value)" style="font-weight:bold; font-size:16px; width:70%;">
-                        <button class="btn-delete" onclick="deleteCategory(${catIndex})"><i class="fas fa-trash"></i></button>
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <input type="text" value="${cat.name}" class="form-input" style="font-weight:bold; font-size:16px; width:60%;" onchange="updateCategory(${catIndex}, 'name', this.value)">
+                        <button class="btn-icon" onclick="deleteCategory(${catIndex})" title="Excluir Categoria"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
 
-                const productList = document.createElement('div');
-                productList.className = 'item-list';
-
+                const list = document.createElement('div');
                 const products = data.products[cat.id] || [];
+
                 products.forEach((prod, prodIndex) => {
-                    const item = document.createElement('div');
-                    item.className = 'admin-item';
-                    item.innerHTML = `
-                         <img src="${prod.image}" class="image-preview" title="URL da Imagem">
-                        <div class="flex-grow">
-                            <input type="text" placeholder="Nome" value="${prod.name}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'name', this.value)" style="width:100%; margin-bottom:5px;">
-                            <input type="text" placeholder="Descrição" value="${prod.description}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'description', this.value)" style="width:100%; margin-bottom:5px;">
-                            <div style="display:flex; gap:5px;">
-                                <input type="number" placeholder="Preço" value="${prod.price}" step="0.01" onchange="updateProduct('${cat.id}', ${prodIndex}, 'price', this.value)" style="width:30%;">
-                                <input type="text" placeholder="URL Imagem" value="${prod.image}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'image', this.value)" style="width:70%;">
+                    const row = document.createElement('div');
+                    row.className = 'item-row';
+                    row.innerHTML = `
+                        <img src="${prod.image}" class="item-img" title="Preview">
+                        <div style="flex:1;">
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <div style="flex:2;">
+                                    <label class="form-label">Nome do Produto</label>
+                                    <input type="text" class="form-input" value="${prod.name}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'name', this.value)">
+                                </div>
+                                <div style="flex:1;">
+                                    <label class="form-label">Preço (R$)</label>
+                                    <input type="number" class="form-input" value="${prod.price}" step="0.01" onchange="updateProduct('${cat.id}', ${prodIndex}, 'price', this.value)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descrição</label>
+                                <input type="text" class="form-input" value="${prod.description}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'description', this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">URL da Imagem</label>
+                                <input type="text" class="form-input" value="${prod.image}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'image', this.value)">
                             </div>
                         </div>
-                        <button class="btn-delete" onclick="deleteProduct('${cat.id}', ${prodIndex})"><i class="fas fa-trash"></i></button>
+                        <button class="btn-icon" onclick="deleteProduct('${cat.id}', ${prodIndex})" style="align-self:center;"><i class="fas fa-trash"></i></button>
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-left:10px;">
+                            <button class="btn-star ${prod.isPopular ? 'active' : ''}" onclick="toggleFeatured('${cat.id}', ${prodIndex})" title="Destacar"><i class="fas fa-star"></i></button>
+                            <span style="font-size:10px; color:#94a3b8;">Destaque</span>
+                        </div>
                     `;
-                    productList.appendChild(item);
+                    list.appendChild(row);
                 });
 
-                catDiv.appendChild(productList);
+                card.appendChild(list);
 
-                const addBtn = document.createElement('button');
-                addBtn.className = 'btn-add';
-                addBtn.style.background = '#3498db';
-                addBtn.style.fontSize = '12px';
-                addBtn.innerText = '+ Adicionar Produto em ' + cat.name;
-                addBtn.onclick = () => addProduct(cat.id);
-                catDiv.appendChild(addBtn);
+                const btn = document.createElement('button');
+                btn.className = 'btn-add-sm';
+                btn.innerText = '+ Adicionar Produto';
+                btn.onclick = () => addProduct(cat.id);
+                card.appendChild(btn);
 
-                container.appendChild(catDiv);
+                container.appendChild(card);
             });
         }
 
         function renderNeighborhoods() {
-            const list = document.getElementById('neighborhoods-list');
-            list.innerHTML = '';
+            const container = document.getElementById('neighborhoods-list');
+            container.innerHTML = '';
 
             data.neighborhoods.forEach((n, index) => {
-                const item = document.createElement('div');
-                item.className = 'admin-item';
-                item.innerHTML = `
-                    <div class="flex-grow" style="display:flex; gap:10px;">
-                        <input type="text" placeholder="Nome do Bairro" value="${n.name}" onchange="updateNeighborhood(${index}, 'name', this.value)" style="flex:2;">
-                        <input type="number" placeholder="Taxa R$" value="${n.fee}" step="0.01" onchange="updateNeighborhood(${index}, 'fee', this.value)" style="flex:1;">
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.style.alignItems = 'center';
+                row.innerHTML = `
+                    <div style="flex:2;">
+                        <input type="text" class="form-input" value="${n.name}" placeholder="Nome do Bairro" onchange="updateNeighborhood(${index}, 'name', this.value)">
                     </div>
-                    <button class="btn-delete" onclick="deleteNeighborhood(${index})"><i class="fas fa-trash"></i></button>
+                    <div style="flex:1;">
+                        <input type="number" class="form-input" value="${n.fee}" step="0.50" placeholder="Taxa" onchange="updateNeighborhood(${index}, 'fee', this.value)">
+                    </div>
+                    <button class="btn-icon" onclick="deleteNeighborhood(${index})"><i class="fas fa-trash"></i></button>
                 `;
-                list.appendChild(item);
+                container.appendChild(row);
             });
         }
 
-        // --- LOGIC ---
-        function updateCategory(index, field, value) {
-            data.categories[index][field] = value;
+        function renderHours() {
+            const container = document.getElementById('hours-list');
+            container.innerHTML = '';
+
+            days.forEach((dayName, index) => {
+                const h = data.openingHours[index] || { open: '18:00', close: '23:00', active: true };
+
+                const row = document.createElement('div');
+                row.className = 'hours-row';
+                row.innerHTML = `
+                    <span class="day-label">${dayName}</span>
+                    <input type="time" class="form-input" value="${h.open}" onchange="updateHour(${index}, 'open', this.value)">
+                    <input type="time" class="form-input" value="${h.close}" onchange="updateHour(${index}, 'close', this.value)">
+                    <label class="switch">
+                        <input type="checkbox" ${h.active ? 'checked' : ''} onchange="updateHour(${index}, 'active', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                `;
+                container.appendChild(row);
+            });
         }
 
-        function deleteCategory(index) {
-            if (confirm('Tem certeza? Isso apagará todos os produtos desta categoria.')) {
-                const id = data.categories[index].id;
-                delete data.products[id];
-                data.categories.splice(index, 1);
-                render();
-            }
-        }
-
-        function addNewCategory() {
-            const id = 'cat_' + Date.now();
-            data.categories.push({ id: id, name: 'Nova Categoria' });
-            data.products[id] = [];
-            render();
-        }
-
+        // --- DATA LOGIC ---
         function updateProduct(catId, index, field, value) {
             if (field === 'price') value = parseFloat(value);
             data.products[catId][index][field] = value;
-            // Update UI image preview specifically if image changed
             if (field === 'image') render();
         }
-
+        function toggleFeatured(catId, index) {
+            data.products[catId][index].isPopular = !data.products[catId][index].isPopular;
+            render();
+        }
         function addProduct(catId) {
-            data.products[catId].push({
-                id: 'prod_' + Date.now(),
-                name: 'Novo Produto',
-                description: 'Descrição...',
-                price: 0,
-                image: 'img/pizza.png',
-                isPopular: false
-            });
+            data.products[catId].push({ id: 'prod_' + Date.now(), name: 'Novo Item', description: '', price: 0, image: '', isPopular: false });
             render();
         }
+        function deleteProduct(catId, index) { if (confirm('Apagar?')) { data.products[catId].splice(index, 1); render(); } }
 
-        function deleteProduct(catId, index) {
-            if (confirm('Deletar produto?')) {
-                data.products[catId].splice(index, 1);
-                render();
-            }
-        }
+        function updateCategory(index, field, value) { data.categories[index][field] = value; }
+        function deleteCategory(index) { if (confirm('Apagar categoria e produtos?')) { var cid = data.categories[index].id; delete data.products[cid]; data.categories.splice(index, 1); render(); } }
+        function addNewCategory() { var id = 'c' + Date.now(); data.categories.push({ id: id, name: 'Nova Categoria' }); data.products[id] = []; render(); }
 
-        function updateNeighborhood(index, field, value) {
-            if (field === 'fee') value = parseFloat(value);
-            data.neighborhoods[index][field] = value;
-        }
+        function updateNeighborhood(index, field, value) { if (field === 'fee') value = parseFloat(value); data.neighborhoods[index][field] = value; }
+        function addNeighborhood() { data.neighborhoods.push({ name: '', fee: 0 }); render(); }
+        function deleteNeighborhood(index) { data.neighborhoods.splice(index, 1); render(); }
 
-        function addNeighborhood() {
-            data.neighborhoods.push({ name: 'Novo Bairro', fee: 0 });
-            render();
-        }
-
-        function deleteNeighborhood(index) {
-            data.neighborhoods.splice(index, 1);
-            render();
+        function updateHour(dayIndex, field, value) {
+            if (!data.openingHours[dayIndex]) data.openingHours[dayIndex] = {};
+            data.openingHours[dayIndex][field] = value;
         }
 
         async function saveChanges() {
-            try {
-                // Ensure format is correct
-                // API call to localhost:3001/admin/save-menu
-                // Since this runs on client, we assume relative path or absolute URL if port differs.
-                // Assuming webhook server runs on same host but port 3001.
-                // But wait, the website is static file served? Or served via express?
-                // The current setup seems to be static files. The User opens them locally or via some server?
-                // The user's environment is Windows, likely opening file:// or via VSCode Live Server.
-                // We need to hit localhost:3001.
+            // Get credentials
+            const authStr = sessionStorage.getItem('adminAuth');
+            if (!authStr) {
+                alert('Você precisa fazer login!');
+                checkAuth();
+                return;
+            }
+            const auth = JSON.parse(authStr);
 
-                const response = await fetch('http://localhost:3001/admin/save-menu', {
+            // Prepare Payload
+            const payload = {
+                ...data,
+                auth: auth
+            };
+
+            try {
+                // Use the same hostname as the admin page, but port 3001
+                // Fixed for file:// protocol usage (local testing)
+                const apiHost = window.location.hostname || 'localhost';
+                const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+                const apiUrl = `${protocol}//${apiHost}:3001/admin/save-menu`;
+
+                console.log('Saving to:', apiUrl);
+
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(payload)
                 });
 
                 if (response.ok) {
-                    alert('Alterações salvas com sucesso!');
+                    alert('✅ Salvo com sucesso!\n\nAgora atualize a página da LOJA (Index) para ver as mudanças.');
+                } else if (response.status === 401) {
+                    alert('❌ Acesso Negado! Login ou senha incorretos.');
+                    sessionStorage.removeItem('adminAuth');
+                    checkAuth();
                 } else {
-                    alert('Erro ao salvar. Verifique se o servidor do bot está rodando.');
+                    alert('❌ Erro ao salvar!');
                 }
             } catch (e) {
-                alert('Erro de conexão: ' + e.message);
+                alert('Erro de Conexão: ' + e.message + '\n\nTentando conectar em: ' + window.location.hostname + ':3001');
             }
         }
 
         window.onload = render;
+
     </script>
 </body>
 

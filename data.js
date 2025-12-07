@@ -7,6 +7,10 @@ const menuData = {
         {
             "id": "bebidas",
             "name": "Bebidas"
+        },
+        {
+            "id": "c1765145974575",
+            "name": "Sobremesa"
         }
     ],
     "products": {
@@ -15,17 +19,17 @@ const menuData = {
                 "id": 1,
                 "name": "4 Estações I",
                 "description": "2 ped. Mussarela, 2 ped. Calabresa, 2 ped. Frango e 2 ped. Carne de Sol.",
-                "price": 38,
+                "price": 27,
                 "image": "https://img.freepik.com/fotos-gratis/pizza-de-quatro-queijos-com-manjericao_140725-5259.jpg",
-                "isPopular": true
+                "isPopular": false
             },
             {
                 "id": 2,
                 "name": "4 Estações II",
                 "description": "2 ped. Calabresa, 2 ped. Mista, 2 ped. Frango e 2 ped. Portuguesa.",
-                "price": 38,
+                "price": 28,
                 "image": "https://img.freepik.com/fotos-gratis/saborosa-pizza-de-pepperoni-e-cogumelos-com-manjericao-e-tomate-em-cimo-da-mesa_140725-6518.jpg",
-                "isPopular": true
+                "isPopular": false
             },
             {
                 "id": 3,
@@ -50,14 +54,6 @@ const menuData = {
                 "price": 32,
                 "image": "https://img.freepik.com/fotos-gratis/pizza-isolada-no-fundo-branco_140725-263.jpg",
                 "isPopular": true
-            },
-            {
-                "id": "prod_1765143281730",
-                "name": "CHURRACOS",
-                "description": "CHURRACOS DE CARNE",
-                "price": 99.5,
-                "image": "https://premix.com.br/blog/wp-content/uploads/2019/04/churrasco_carne_thumbnail.png",
-                "isPopular": false
             }
         ],
         "bebidas": [
@@ -68,6 +64,16 @@ const menuData = {
                 "price": 1,
                 "image": "https://img.freepik.com/vetores-gratis/refrigerantes-realistas-em-latas-de-aluminio_23-2148141446.jpg",
                 "isPopular": false
+            }
+        ],
+        "c1765145974575": [
+            {
+                "id": "prod_1765145984423",
+                "name": "Pudim",
+                "description": "Melhor Pudim da cidade",
+                "price": 2,
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpXGhTY0S0ykz1zct0t4bsmG8tHUyMk3o9feo42myZXGXaW99vyeZAJkzcxdHnCYLukW7n9ygjMDzGcMFgCnADOx0SH45CDctGEYVEDMiMIQ&s=10",
+                "isPopular": true
             }
         ]
     },
@@ -82,19 +88,19 @@ const menuData = {
         },
         {
             "name": "Aldeota",
-            "fee": 10
+            "fee": 8
         },
         {
             "name": "Meireles",
-            "fee": 10
+            "fee": 9
         },
         {
             "name": "Dionísio Torres",
-            "fee": 20
+            "fee": 9
         },
         {
             "name": "Joaquim Távora",
-            "fee": 20
+            "fee": 12
         },
         {
             "name": "Benfica",
@@ -104,5 +110,44 @@ const menuData = {
             "name": "Aerolândia",
             "fee": 10
         }
-    ]
+    ],
+    "openingHours": {
+        "0": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "1": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "2": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "3": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "4": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "5": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        },
+        "6": {
+            "open": "18:00",
+            "close": "23:00",
+            "active": true
+        }
+    }
 };
+
+if (typeof module !== 'undefined') module.exports = menuData;
