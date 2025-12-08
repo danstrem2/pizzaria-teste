@@ -544,5 +544,8 @@ function renderNeighborhoods() {
             option.dataset.fee = nb.fee;
             select.appendChild(option);
         });
+
+        // Add Listener
+        select.onchange = updateCheckoutTotal;
     }
 }
