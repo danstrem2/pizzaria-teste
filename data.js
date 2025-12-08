@@ -113,7 +113,7 @@ const menuData = {
     ],
     "openingHours": {
         "0": {
-            "open": "18:00",
+            "open": "21:36",
             "close": "23:00",
             "active": true
         },

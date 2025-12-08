@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Top Pizza</title>
+    <title>Painel Admin - Pizzaria Habibs</title>
     <!-- Use Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -355,7 +355,7 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="brand"><i class="fas fa-pizza-slice"></i> Top Pizza</div>
+        <div class="brand"><i class="fas fa-pizza-slice"></i> Pizzaria Habibs</div>
         <ul class="nav-items">
             <li class="nav-item"><button class="nav-btn active" onclick="switchTab('products')"><i
                         class="fas fa-box"></i> Produtos</button></li>
@@ -651,11 +651,9 @@
             };
 
             try {
-                // Use the same hostname as the admin page, but port 3001
-                // Fixed for file:// protocol usage (local testing)
-                const apiHost = window.location.hostname || 'localhost';
-                const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
-                const apiUrl = `${protocol}//${apiHost}:3001/admin/save-menu`;
+                // Use API Base URL from Config
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+                const apiUrl = `${apiHost}/admin/save-menu`;
 
                 console.log('Saving to:', apiUrl);
 

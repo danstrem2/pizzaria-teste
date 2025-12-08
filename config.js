@@ -11,7 +11,7 @@ const AppConfig = {
     // Se usar VPS com HTTPS, coloque o domínio aqui (ex: 'https://api.meusite.com')
     apiBaseUrl: 'http://localhost:3001',
 
-    storeName: 'Top Pizza TESTE'
+    storeName: 'Pizzaria Habibs'
 };
 
 // Expose to window

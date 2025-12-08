@@ -526,4 +526,23 @@ window.onload = function () {
     if (typeof renderPopular === 'function') renderPopular();
     if (typeof renderProducts === 'function') renderProducts();
     if (typeof updateCartUI === 'function') updateCartUI();
+    if (typeof renderNeighborhoods === 'function') renderNeighborhoods();
 };
+
+function renderNeighborhoods() {
+    const select = document.getElementById('client-neighborhood');
+    if (!select) return;
+
+    // Clear existing (keep first option)
+    select.innerHTML = '<option value="">Selecione seu bairro...</option>';
+
+    if (menuData.neighborhoods && Array.isArray(menuData.neighborhoods)) {
+        menuData.neighborhoods.forEach(nb => {
+            const option = document.createElement('option');
+            option.value = nb.name; // ID or Name
+            option.textContent = `${nb.name} (+ R$ ${nb.fee.toFixed(2).replace('.', ',')})`;
+            option.dataset.fee = nb.fee;
+            select.appendChild(option);
+        });
+    }
+}
