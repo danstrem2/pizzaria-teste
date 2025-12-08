@@ -7,9 +7,10 @@ const AppConfig = {
     adminUrl: 'https://danstrem2.github.io/pizzaria-teste/admin.html',
 
     // API URL for Direct Orders (Automático)
-    // Use 'http://192.168.1.70:3001' para testes no celular (mesmo Wi-Fi)
-    // Se usar VPS com HTTPS, coloque o domínio aqui (ex: 'https://api.meusite.com')
-    apiBaseUrl: 'http://192.168.1.70:3001',
+    // URL Pública Temporária (Tunnel): Funciona em 4G/5G
+    apiBaseUrl: 'https://tasty-states-knock.loca.lt',
+
+    // apiBaseUrl: 'http://localhost:3001', // Local (Backup)
 
     storeName: 'Pizzaria Habibs'
 };

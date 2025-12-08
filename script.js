@@ -482,7 +482,10 @@ async function finalizeCheckout() {
 
         const response = await fetch(`${apiUrl}/create-order`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Bypass-Tunnel-Reminder': 'true'
+            },
             body: JSON.stringify(payload)
         });
 
