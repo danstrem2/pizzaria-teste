@@ -415,7 +415,7 @@ function closeCheckoutModal() {
     checkoutModal.classList.remove('open');
 }
 
-function finalizeCheckout() {
+async function finalizeCheckout() {
     const name = document.getElementById('client-name').value;
     const phone = document.getElementById('client-phone').value;
 
@@ -432,63 +432,98 @@ function finalizeCheckout() {
     }
 
     const neighborhood = neighborhoodSelect.options[neighborhoodSelect.selectedIndex].text;
-    // Extract name only from option text (remove fee) if needed, but the text is fine "Centro (+ R$ 5,00)"
-
     const fee = parseFloat(neighborhoodSelect.options[neighborhoodSelect.selectedIndex].dataset.fee || 0);
     const payment = document.getElementById('payment-method').value;
     const change = document.getElementById('client-change').value;
 
-    if (!name || !street || !number) {
-        alert('Por favor, preencha Nome, Rua e Número.');
+    if (!name || !street || !number || !phone) {
+        alert('Por favor, preencha Nome, Telefone, Rua e Número.');
         return;
     }
 
-    let message = "*NOVO PEDIDO - TOP PIZZA* 🍕\n\n";
-    message += `👤 *Cliente:* ${name}\n`;
-    message += `📞 *Telefone:* ${phone}\n`;
-    message += `📍 *Endereço:* ${street}, ${number} - ${neighborhood}\n`;
-    if (complement) message += `   Ref: ${complement}\n`;
-    message += `\n`;
-
-    message += "*🛒 ITENS DO PEDIDO:*\n";
+    // Prepare Payload
     let subtotal = 0;
-
-    cart.forEach(item => {
-        const itemTotal = item.price * item.qty;
-        subtotal += itemTotal;
-
-        if (item.secondFlavorName) {
-            message += `• ${item.qty}x Pizza Meio a Meio: ${item.name} / ${item.secondFlavorName}`;
-        } else {
-            message += `• ${item.qty}x ${item.name}`;
-        }
-
-        if (item.obs) message += `\n  _Ops: ${item.obs}_`;
-        message += `\n`;
+    const cartItems = cart.map(item => {
+        subtotal += item.price * item.qty;
+        return {
+            name: item.name,
+            qty: item.qty,
+            flavor2: item.secondFlavorName || null,
+            obs: item.obs || ''
+        };
     });
 
     const total = subtotal + fee;
 
-    message += `\n🧾 *Subtotal:* R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
-    message += `🛵 *Taxa de Entrega:* R$ ${fee.toFixed(2).replace('.', ',')}\n`;
-    message += `💰 *TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
+    const payload = {
+        clientInfo: {
+            name: name,
+            phone: phone,
+            address: `${street}, ${number} ${complement ? '- ' + complement : ''}`,
+            district: neighborhood,
+            deliveryFee: `R$ ${fee.toFixed(2).replace('.', ',')}`,
+            subtotal: `R$ ${subtotal.toFixed(2).replace('.', ',')}`
+        },
+        cart: cartItems,
+        total: `R$ ${total.toFixed(2).replace('.', ',')}`,
+        paymentMethod: payment + (change ? ` (Troco para R$ ${change})` : '')
+    };
 
-    message += `💳 *Pagamento:* ${payment}\n`;
-    if (payment === 'Dinheiro' && change) {
-        message += `💵 *Troco para:* R$ ${parseFloat(change).toFixed(2).replace('.', ',')}\n`;
+    // UI Feedback
+    const btn = document.querySelector('.add-to-cart-btn'); // The button inside checkout modal (make sure class matches)
+    const originalText = btn ? btn.innerText : 'Enviar';
+    if (btn) {
+        btn.innerText = '⏳ Enviando Pedido...';
+        btn.disabled = true;
     }
 
-    message += `\n------------------------------\n`;
-    message += `Aguardo a confirmação!`;
+    try {
+        const apiUrl = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
 
-    const encoded = encodeURIComponent(message);
+        const response = await fetch(`${apiUrl}/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    // Use AppConfig if available, otherwise fallback
-    const botNumber = (window.AppConfig && window.AppConfig.botNumber) ? window.AppConfig.botNumber : '558894391768';
+        const data = await response.json();
 
-    // Open chat directly with the bot (using api.whatsapp.com is more robust for desktop)
-    window.location.href = `https://api.whatsapp.com/send?phone=${botNumber}&text=${encoded}`;
+        if (data.success) {
+            alert('✅ Pedido Enviado com Sucesso!\n\nVerifique seu WhatsApp, o Robô já mandou a confirmação e o pagamento.');
+            cart = [];
+            updateCartUI();
+            closeCheckoutModal();
+        } else {
+            alert('❌ Erro ao enviar: ' + (data.error || 'Erro desconhecido.'));
+        }
+    } catch (error) {
+        console.error('Erro de Pedido:', error);
+        alert('⚠️ Erro de Conexão!\n\nO Robô parece estar offline ou bloqueado. Tente novamente ou chame no WhatsApp.');
+    } finally {
+        if (btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
 }
 
 // Start
-window.onload = init;
+window.onload = function () {
+    // 1. Load Config
+    if (window.AppConfig) {
+        // Set Page Title
+        if (window.AppConfig.storeName) {
+            document.title = `${window.AppConfig.storeName} - Pedidos Online`;
+
+            // Set Header Name
+            const headerName = document.querySelector('.shop-name');
+            if (headerName) headerName.innerText = window.AppConfig.storeName;
+        }
+    }
+
+    // Initialize UI
+    if (typeof renderCategoryTabs === 'function') renderCategoryTabs();
+    if (typeof renderPopular === 'function') renderPopular();
+    if (typeof renderProducts === 'function') renderProducts();
+    if (typeof updateCartUI === 'function') updateCartUI();
+};
