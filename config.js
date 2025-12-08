@@ -7,7 +7,7 @@ const AppConfig = {
     adminUrl: 'https://danstrem2.github.io/pizzaria-teste/admin.html',
 
     // Modo Wi-Fi Local (Celular e PC na mesma rede)
-    apiBaseUrl: 'https://derived-signature-fully-studying.trycloudflare.com',
+    apiBaseUrl: 'https://bible-computational-personalized-hiv.trycloudflare.com',
 
     storeName: 'Pizzaria Habibs'
 };
