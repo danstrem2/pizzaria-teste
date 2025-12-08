@@ -80,7 +80,7 @@ const menuData = {
     "neighborhoods": [
         {
             "name": "Centro",
-            "fee": 2
+            "fee": 0
         },
         {
             "name": "Bairro de Fátima",
