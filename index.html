@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -190,238 +189,28 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                 <div class="cart-controls">
                     <button class="qty-btn" onclick="adjustModalQty(-1)">-</button>
-                    ```html
-                    <!DOCTYPE html>
-                    <html lang="pt-BR">
+                    <span id="modal-qty">1</span>
+                    <button class="qty-btn" onclick="adjustModalQty(1)">+</button>
+                </div>
+                <div style="font-weight:bold; font-size:18px;" id="modal-price">R$ 0,00</div>
+            </div>
 
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Top Pizza - Pedidos Online</title>
-                        <link rel="stylesheet" href="style.css?v=1.2">
-                        <link rel="stylesheet"
-                            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    </head>
+            <button class="add-to-cart-btn" onclick="addToCartFromModal()">Adicionar</button>
+        </div>
+    </div>
 
-                    <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <!-- Load Config First -->
+    <script src="config.js?v=1.0"></script>
+    <!-- Dynamic Load to prevent Cache -->
+    <script>
+        const v = Date.now();
+        document.write(`<script src="data.js?v=${v}"><\/script>`);
+        // Dynamic Script Loading to bust cache for script.js
+        const script = document.createElement('script');
+        script.src = `script.js?v=${v}`;
+        document.body.appendChild(script);
+    </script>
+</body>
 
-                        <!-- Header -->
-                        <header class="header">
-                            <div class="header-title">
-                                <img src="https://cdn-icons-png.flaticon.com/512/3132/3132693.png" alt="Logo"
-                                    class="logo-img">
-                                <span class="shop-name">Top Pizza</span>
-                            </div>
-                            <div class="header-icons">
-                                <i class="fas fa-search"></i>
-                                <i class="fas fa-share-alt"></i>
-                            </div>
-                        </header>
-
-                        <!-- Nav Mobile Bottom -->
-                        <nav class="bottom-nav">
-                            <a href="#" class="nav-item active" data-target="home">
-                                <i class="fas fa-home"></i>
-                                <span>Início</span>
-                            </a>
-                            <a href="#" class="nav-item" data-target="requests">
-                                <i class="fas fa-receipt"></i>
-                                <span>Pedidos</span>
-                            </a>
-                            <a href="#" class="nav-item" data-target="cart">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Carrinho</span>
-                                <span id="cart-badge"
-                                    style="display:none; background:red; color:white; border-radius:50%; padding:2px 5px; margin-left:-5px; font-size:10px;">0</span>
-                            </a>
-                        </nav>
-
-                        <!-- Floating Cart Bar (iFood Style) -->
-                        <div id="floating-cart-bar" class="floating-cart-bar" onclick="showView('cart')">
-                            <div class="cart-info">
-                                <span id="floating-count">0</span>
-                                <span class="cart-text">Ver Sacola</span>
-                            </div>
-                            <span id="floating-total">R$ 0,00</span>
-                        </div>
-
-                        <!-- VIEWS -->
-
-                        <!-- HOME VIEW -->
-                        <main id="home-view" class="view active">
-                            <!-- Category Tabs -->
-                            <div class="category-tabs" id="category-tabs">
-                                <!-- Inject via JS -->
-                            </div>
-
-                            <!-- Popular Section -->
-                            <section>
-                                <div class="section-title">Os mais pedidos</div>
-                                <div class="carousel" id="popular-carousel">
-                                    <!-- Inject via JS -->
-                                </div>
-                            </section>
-
-                            <!-- Product List -->
-                            <section id="product-sections">
-                                <!-- Inject via JS -->
-                            </section>
-                        </main>
-
-                        <!-- ORDERS VIEW -->
-                        <main id="requests-view" class="view">
-                            <div class="cart-view">
-                                <div class="cart-empty">
-                                    <i class="fas fa-book-open"></i>
-                                    <h3>Você ainda não fez nenhum pedido.</h3>
-                                    <p>Que tal dar uma olhadinha no cardápio?</p>
-                                    <button class="btn-primary" onclick="showView('home')">Adicionar produtos</button>
-                                </div>
-                            </div>
-                        </main>
-
-                        <!-- CART VIEW -->
-                        <main id="cart-view" class="view">
-                            <div class="cart-view" id="cart-container">
-                                <!-- Inject via JS -->
-                            </div>
-                        </main>
-
-                        <!-- Checkout Modal -->
-                        <div class="modal" id="checkout-modal">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h3>Finalizar Pedido</h3>
-                                    <button class="close-modal" onclick="closeCheckoutModal()">&times;</button>
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <label style="display:block; margin-bottom:5px; font-weight:600;">Seu Nome:</label>
-                                    <input type="text" id="client-name" placeholder="Ex: João Silva"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <label style="display:block; margin-bottom:5px; font-weight:600;">Telefone
-                                        (WhatsApp):</label>
-                                    <input type="tel" id="client-phone" placeholder="Ex: 88 99999-9999"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <label style="display:block; margin-bottom:5px; font-weight:600;">Bairro (Taxa de
-                                        Entrega):</label>
-                                    <select id="client-neighborhood"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                        <option value="">Selecione seu bairro...</option>
-                                        <!-- Injected via JS -->
-                                    </select>
-                                    <div id="delivery-fee-display" style="font-size:12px; color:#666; margin-top:5px;">
-                                    </div>
-                                </div>
-
-                                <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                                    <div style="flex:2;">
-                                        <label
-                                            style="display:block; margin-bottom:5px; font-weight:600;">Rua/Av:</label>
-                                        <input type="text" id="client-street" placeholder="Nome da Rua"
-                                            style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                    </div>
-                                    <div style="flex:1;">
-                                        <label
-                                            style="display:block; margin-bottom:5px; font-weight:600;">Número:</label>
-                                        <input type="text" id="client-number" placeholder="123"
-                                            style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <label
-                                        style="display:block; margin-bottom:5px; font-weight:600;">Complemento/Ref:</label>
-                                    <input type="text" id="client-complement"
-                                        placeholder="Apto 101, Ao lado da padaria..."
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                </div>
-
-                                <div style="margin-bottom: 15px;">
-                                    <label style="display:block; margin-bottom:5px; font-weight:600;">Forma de
-                                        Pagamento:</label>
-                                    <select id="payment-method"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                        <option value="PIX (Automático)">PIX (Automático)</option>
-                                        <option value="Cartão (Automático)">Cartão (Automático)</option>
-                                        <option value="Cartão (Entrega)">Cartão (Entrega)</option>
-                                        <option value="Dinheiro">Dinheiro</option>
-                                    </select>
-                                </div>
-
-                                <div id="change-container" style="margin-bottom: 15px; display:none;">
-                                    <label style="display:block; margin-bottom:5px; font-weight:600;">Troco
-                                        para:</label>
-                                    <input type="number" id="client-change" placeholder="Ex: 50"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                </div>
-
-                                <button class="add-to-cart-btn" onclick="finalizeCheckout()">Enviar Pedido no
-                                    WhatsApp</button>
-                            </div>
-                        </div>
-
-                        <!-- Product Modal -->
-                        <div class="modal" id="product-modal">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h3 id="modal-title">Nome do Produto</h3>
-                                    <button class="close-modal" onclick="closeModal()">&times;</button>
-                                </div>
-                                <p id="modal-desc" style="color:#666; margin-bottom:15px;"></p>
-                                <div id="second-flavor-container" style="margin-bottom: 15px; display:none;">
-                                    <label
-                                        style="display:block; margin-bottom:5px; font-weight:600; color:var(--primary-color);">🍕
-                                        Adicionar 2º Sabor (Meio a Meio)?</label>
-                                    <select id="second-flavor-select"
-                                        style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                                        <option value="">Não, quero inteira</option>
-                                        <!-- Injected via JS -->
-                                    </select>
-                                    <p style="font-size:12px; color:#666; margin-top:5px;">O valor será o da pizza de
-                                        maior preço.</p>
-                                </div>
-
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-weight:bold;">Observação:</span>
-                                </div>
-                                <textarea id="modal-obs" placeholder="Ex: Sem cebola..."
-                                    style="width:100%; border:1px solid #ccc; padding:10px; margin-top:5px; border-radius:5px;"></textarea>
-
-                                <div
-                                    style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                                    <div class="cart-controls">
-                                        <button class="qty-btn" onclick="adjustModalQty(-1)">-</button>
-                                        <span id="modal-qty">1</span>
-                                        <button class="qty-btn" onclick="adjustModalQty(1)">+</button>
-                                    </div>
-                                    <div style="font-weight:bold; font-size:18px;" id="modal-price">R$ 0,00</div>
-                                </div>
-
-                                <button class="add-to-cart-btn" onclick="addToCartFromModal()">Adicionar</button>
-                            </div>
-                        </div>
-
-                        <script
-                            src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
-                        <!-- Load Config First -->
-                        <script src="config.js?v=1.0"></script>
-                        <!-- Dynamic Load to prevent Cache -->
-                        <script>
-                            const v = Date.now();
-                            document.write(`<script src="data.js?v=${v}"><\/script>`);
-                            // Dynamic Script Loading to bust cache for script.js
-                            const script = document.createElement('script');
-                            script.src = `script.js?v=${v}`; // Use the same 'v' for consistency or Date.now() if preferred
-                            document.body.appendChild(script);
-                        </script>
-                    </body>
-
-                    </html>
-                    ```
+</html>

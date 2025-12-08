@@ -3,10 +3,8 @@ const AppConfig = {
     botNumber: '558894391768',
 
     // Website URL (for redirects or links)
-    websiteUrl: 'https://dasilvadocumentos.com.br/website/index.html',
-
-    // Admin URL
-    adminUrl: 'https://dasilvadocumentos.com.br/website/admin.html'
+    websiteUrl: 'https://danstrem2.github.io/pizzaria-teste/index.html',
+    adminUrl: 'https://danstrem2.github.io/pizzaria-teste/admin.html'
 };
 
 // Expose to window
