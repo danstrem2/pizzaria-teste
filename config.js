@@ -6,11 +6,10 @@ const AppConfig = {
     websiteUrl: 'https://danstrem2.github.io/pizzaria-teste/index.html',
     adminUrl: 'https://danstrem2.github.io/pizzaria-teste/admin.html',
 
-    // API URL for Direct Orders (Automático)
-    // URL Pública Temporária (Tunnel): Funciona em 4G/5G
-    apiBaseUrl: 'https://chilly-files-drive.loca.lt',
+    // Modo Wi-Fi Local (Celular e PC na mesma rede)
+    apiBaseUrl: 'https://carriers-minerals-quantitative-queen.trycloudflare.com',
 
-    // apiBaseUrl: 'http://localhost:3001', // Local (Backup)
+    // apiBaseUrl: 'http://localhost:3001', // Apenas PC
 
     storeName: 'Pizzaria Habibs'
 };
