@@ -8,7 +8,7 @@ const AppConfig = {
 
     // API URL for Direct Orders (Automático)
     // URL Pública Temporária (Tunnel): Funciona em 4G/5G
-    apiBaseUrl: 'https://tasty-states-knock.loca.lt',
+    apiBaseUrl: 'https://chilly-files-drive.loca.lt',
 
     // apiBaseUrl: 'http://localhost:3001', // Local (Backup)
 
