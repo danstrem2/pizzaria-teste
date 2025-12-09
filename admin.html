@@ -553,8 +553,27 @@
         }
 
         // --- RENDER ---
-        function render() {
+        async function loadMenuData() {
+            try {
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+                const response = await fetch(`${apiHost}/api/menu`);
+                if (response.ok) {
+                    const freshData = await response.json();
+                    if (freshData) {
+                         data = freshData;
+                         // Ensure structure
+                         if (!data.openingHours) data.openingHours = {};
+                         console.log('Dados do Menu atualizados via API');
+                    }
+                }
+            } catch (e) {
+                console.warn('Usando dados locais (cache/static) pois falha na API:', e);
+            }
+        }
+
+        async function render() {
             checkAuth(); // Check on init
+            await loadMenuData();
             renderProducts();
             renderNeighborhoods();
             renderHours();

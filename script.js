@@ -510,8 +510,25 @@ async function finalizeCheckout() {
     }
 }
 
+// --- API SYNC ---
+async function fetchMenuData() {
+    try {
+        const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+        const response = await fetch(`${apiHost}/api/menu`);
+        if (response.ok) {
+            const newData = await response.json();
+            if (newData && typeof menuData !== 'undefined') {
+                Object.assign(menuData, newData); // Update global object
+                console.log('Menu Data synced from API');
+            }
+        }
+    } catch (e) {
+        console.warn('Using static menu data (API unreachable)');
+    }
+}
+
 // Start
-window.onload = function () {
+window.onload = async function () {
     // 1. Load Config
     if (window.AppConfig) {
         // Set Page Title
@@ -523,6 +540,9 @@ window.onload = function () {
             if (headerName) headerName.innerText = window.AppConfig.storeName;
         }
     }
+
+    // 2. Sync Data
+    await fetchMenuData();
 
     // Initialize UI
     if (typeof renderCategoryTabs === 'function') renderCategoryTabs();
