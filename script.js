@@ -34,21 +34,34 @@ function init() {
 
 function renderNeighborhoods() {
     const select = document.getElementById('client-neighborhood');
-    if (!select) return;
+    const mapContainer = document.getElementById('delivery-neighborhoods');
 
     // Sort alphabetically
     const sorted = menuData.neighborhoods.sort((a, b) => a.name.localeCompare(b.name));
 
     sorted.forEach(n => {
-        const option = document.createElement('option');
-        option.value = n.name;
-        option.dataset.fee = n.fee;
-        option.textContent = `${n.name} (+ R$ ${n.fee.toFixed(2).replace('.', ',')})`;
-        select.appendChild(option);
+        // Populate checkout dropdown
+        if (select) {
+            const option = document.createElement('option');
+            option.value = n.name;
+            option.dataset.fee = n.fee;
+            option.textContent = `${n.name} (+ R$ ${n.fee.toFixed(2).replace('.', ',')})`;
+            select.appendChild(option);
+        }
+
+        // Populate map section badges
+        if (mapContainer) {
+            const badge = document.createElement('span');
+            badge.className = 'neighborhood-badge';
+            badge.textContent = n.name;
+            mapContainer.appendChild(badge);
+        }
     });
 
     // Update total on change
-    select.addEventListener('change', updateCheckoutTotal);
+    if (select) {
+        select.addEventListener('change', updateCheckoutTotal);
+    }
 }
 
 // --- Navigation ---

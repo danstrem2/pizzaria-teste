@@ -54,23 +54,74 @@
 
     <!-- HOME VIEW -->
     <main id="home-view" class="view active">
+
+        <!-- HERO BANNER -->
+        <div class="hero-banner"
+            style="position:relative; height:200px; background: linear-gradient(135deg, #ff6b35 0%, #f72c25 100%); overflow:hidden; margin:-20px -15px 20px -15px;">
+            <div
+                style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; color:white; z-index:2;">
+                <div style="font-size:48px; animation: bounce 2s infinite;">🍕</div>
+                <h1 style="font-size:24px; font-weight:800; margin:10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    Pizzaria Habibs</h1>
+                <p style="font-size:14px; opacity:0.9;">As melhores pizzas da cidade!</p>
+                <div
+                    style="margin-top:15px; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:20px;">
+                    <span
+                        style="width:10px; height:10px; background:#22c55e; border-radius:50%; animation: pulse 1.5s infinite;"></span>
+                    <span style="font-size:13px;">Aberto agora • Entrega em ~40min</span>
+                </div>
+            </div>
+            <div
+                style="position:absolute; bottom:0; left:0; right:0; height:30px; background: linear-gradient(to top, var(--bg-color), transparent);">
+            </div>
+        </div>
+
         <!-- Category Tabs -->
-        <div class="category-tabs" id="category-tabs">
+        <div class="category-tabs" id="category-tabs" style="animation: fadeInUp 0.5s ease-out;">
             <!-- Inject via JS -->
         </div>
 
         <!-- Popular Section -->
-        <section>
-            <div class="section-title">Os mais pedidos</div>
+        <section style="animation: fadeInUp 0.6s ease-out;">
+            <div class="section-title">🔥 Os mais pedidos</div>
             <div class="carousel" id="popular-carousel">
                 <!-- Inject via JS -->
             </div>
         </section>
 
         <!-- Product List -->
-        <section id="product-sections">
+        <section id="product-sections" style="animation: fadeInUp 0.7s ease-out;">
             <!-- Inject via JS -->
         </section>
+
+        <!-- DELIVERY AREA MAP -->
+        <section style="padding:15px; margin-top:20px; animation: fadeInUp 0.8s ease-out;">
+            <div class="section-title">📍 Área de Entrega</div>
+            <div style="background:white; border-radius:12px; padding:20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div
+                    style="position:relative; height:200px; background:linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:15px; overflow:hidden;">
+                    <div
+                        style="position:absolute; width:150px; height:150px; border:3px dashed #4caf50; border-radius:50%; opacity:0.5;">
+                    </div>
+                    <div
+                        style="position:absolute; width:100px; height:100px; border:3px dashed #8bc34a; border-radius:50%; opacity:0.7;">
+                    </div>
+                    <div
+                        style="background:#ff5722; width:20px; height:20px; border-radius:50%; box-shadow: 0 0 20px rgba(255,87,34,0.5);">
+                    </div>
+                    <span style="position:absolute; bottom:10px; left:10px; font-size:12px; color:#666;">Raio de
+                        ~5km</span>
+                </div>
+                <h4 style="margin-bottom:10px; color:#333;">Bairros Atendidos:</h4>
+                <div id="delivery-neighborhoods" style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <!-- Injected via JS -->
+                </div>
+                <p style="margin-top:15px; font-size:13px; color:#666; text-align:center;">
+                    🛵 Taxa de entrega a partir de R$ 3,00
+                </p>
+            </div>
+        </section>
+
     </main>
 
     <!-- ORDERS VIEW -->
