@@ -710,7 +710,10 @@
                     return;
                 }
 
-                transactions.forEach(t => {
+                // Store transactions globally for safe access
+                window.currentOrders = transactions;
+
+                transactions.forEach((t, index) => {
                     const statusColors = {
                         'pending': '#f59e0b', // Orange
                         'approved': '#10b981', // Green
@@ -718,18 +721,21 @@
                     };
                     const color = statusColors[t.status] || '#64748b';
                     const date = new Date(t.createdAt).toLocaleString('pt-BR');
-                    const orderId = t.orderId ? `#${t.orderId}` : (t.id.substr(0, 8) + '...');
+
+                    // Robust ID Handling: Convert to string first
+                    const idStr = String(t.id);
+                    const orderIdDisplay = t.orderId ? `#${t.orderId}` : (idStr.length > 8 ? idStr.substr(0, 8) + '...' : idStr);
 
                     const tr = document.createElement('tr');
                     tr.style.borderBottom = '1px solid #f1f5f9';
                     tr.innerHTML = `
-                        <td style="padding:12px; font-weight:bold;">${orderId}</td>
+                        <td style="padding:12px; font-weight:bold;">${orderIdDisplay}</td>
                         <td style="padding:12px;">${t.clientInfo ? t.clientInfo.name : 'Desconhecido'}</td>
                         <td style="padding:12px;"><span style="background:${color}; color:white; padding:4px 8px; border-radius:12px; font-size:12px;">${t.status}</span></td>
                         <td style="padding:12px;">${t.totalDisplay || ('R$ ' + t.amount)}</td>
                         <td style="padding:12px; font-size:12px; color:#64748b;">${date}</td>
                         <td style="padding:12px;">
-                            <button onclick='openOrderDetails(${JSON.stringify(t)})' style="background:#3b82f6; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i class="fas fa-eye"></i></button>
+                            <button onclick='openOrderDetails(${index})' style="background:#3b82f6; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i class="fas fa-eye"></i></button>
                         </td>
                     `;
                     container.appendChild(tr);
@@ -741,7 +747,10 @@
             }
         }
 
-        function openOrderDetails(order) {
+        function openOrderDetails(index) {
+            const order = window.currentOrders[index]; // Safe access
+            if (!order) return;
+
             document.getElementById('modal-order-id').innerText = order.orderId ? `#${order.orderId}` : order.id;
 
             if (order.clientInfo) {
