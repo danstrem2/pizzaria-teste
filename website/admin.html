@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Pizzaria Habibs</title>
+    <!-- Use Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            /* Blue */
+            --primary-dark: #2563eb;
+            --secondary-color: #1e293b;
+            /* Dark Slate (Sidebar) */
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #334155;
+            --text-light: #94a3b8;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color);
+        }
+
+        .media-link {
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            margin-top: auto;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .media-link:hover {
+            opacity: 1;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            padding: 12px 15px;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* VIEWS */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CARDS & INPUTS */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: 0.3s;
+        }
+
+        .btn-icon:hover {
+            color: var(--danger-color);
+        }
+
+        .btn-add-sm {
+            background: var(--bg-color);
+            color: var(--primary-color);
+            border: 2px dashed var(--border-color);
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-add-sm:hover {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 15px;
+            align-items: start;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #ddd;
+        }
+
+        /* HOURS TABLE */
+        .hours-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hours-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-label {
+            font-weight: 600;
+        }
+
+        /* TOGGLE SWITCH */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .btn-star {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #cbd5e1;
+            /* Gray */
+            font-size: 18px;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-star:hover {
+            color: #f59e0b;
+        }
+
+        .btn-star.active {
+            color: #f59e0b;
+            /* Gold */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand"><i class="fas fa-pizza-slice"></i> Pizzaria Habibs</div>
+        <ul class="nav-items">
+            <li class="nav-item"><button class="nav-btn active" onclick="switchTab('orders')"><i
+                        class="fas fa-receipt"></i> Pedidos</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('products')"><i class="fas fa-box"></i>
+                    Produtos</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('neighborhoods')"><i
+                        class="fas fa-map-marker-alt"></i> Bairros & Taxas</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('hours')"><i class="fas fa-clock"></i>
+                    Horários</button></li>
+        </ul>
+        <a href="index.html" target="_blank" class="media-link"><i class="fas fa-external-link-alt"></i> Ver Loja
+            Online</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <div class="header">
+            <h1 class="page-title" id="page-title">Gerenciar Produtos</h1>
+            <button class="btn-save" onclick="saveChanges()"><i class="fas fa-save"></i> Salvar Alterações</button>
+        </div>
+
+        <!-- PRODUCTS VIEW -->
+        <div id="view-products" class="view-section active">
+            <div id="products-container"></div>
+            <button class="btn-save" style="width:100%; margin-top:20px; background:#2ecc71;"
+                onclick="addNewCategory()">+ Nova Categoria</button>
+        </div>
+
+        <!-- NEIGHBORHOODS VIEW -->
+        <div id="view-neighborhoods" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">Locais de Entrega</span>
+                    <button class="btn-add-sm" style="width:auto;" onclick="addNeighborhood()">+ Adicionar</button>
+                </div>
+                <div id="neighborhoods-list"></div>
+            </div>
+        </div>
+
+        <!-- HOURS VIEW -->
+        <div id="view-hours" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">Horário de Funcionamento</span>
+                </div>
+                <div id="hours-list">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+            <p style="color:var(--text-light); font-size:14px; margin-top:10px;">* Desmarque o botão para definir como
+                "Fechado" no dia.</p>
+            <!-- ORDERS VIEW -->
+            <div id="view-orders" class="view-section">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="section-title">Últimos Pedidos</span>
+                        <button class="btn-add-sm" style="width:auto;" onclick="renderOrders()">🔄 Atualizar</button>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                            <thead>
+                                <tr style="text-align:left; border-bottom:2px solid #e2e8f0; color:#64748b;">
+                                    <th style="padding:10px;">ID</th>
+                                    <th style="padding:10px;">Cliente</th>
+                                    <th style="padding:10px;">Status</th>
+                                    <th style="padding:10px;">Total</th>
+                                    <th style="padding:10px;">Data</th>
+                                    <th style="padding:10px;">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <!-- JS Generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ORDER DETAILS MODAL -->
+        <div id="order-modal"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+            <div class="card" style="width:500px; max-height:80vh; overflow-y:auto; padding:0;">
+                <div
+                    style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="font-size:18px;">Detalhes do Pedido <span id="modal-order-id"
+                            style="color:var(--primary-color);"></span></h2>
+                    <button onclick="document.getElementById('order-modal').style.display='none'"
+                        style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+                </div>
+                <div style="padding:20px;">
+                    <p><strong>👤 Cliente:</strong> <span id="modal-client-name"></span></p>
+                    <p><strong>📞 Telefone:</strong> <span id="modal-client-phone"></span></p>
+                    <p><strong>📍 Endereço:</strong> <span id="modal-client-address"></span></p>
+                    <div
+                        style="margin:20px 0; border:1px dashed #ccc; padding:10px; border-radius:8px; background:#f9f9f9;">
+                        <strong>🛒 Itens:</strong>
+                        <ul id="modal-items-list" style="padding-left:20px; margin-top:10px;"></ul>
+                    </div>
+                    <p><strong>💰 Total:</strong> <span id="modal-total"
+                            style="font-size:18px; font-weight:bold;"></span></p>
+                    <p><strong>💳 Pagamento:</strong> <span id="modal-payment"></span></p>
+                </div>
+                <div style="padding:20px; border-top:1px solid #eee; text-align:right;">
+                    <button class="btn-save"
+                        onclick="document.getElementById('order-modal').style.display='none'">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal"
+        style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div class="card" style="width:300px; padding:30px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="color:var(--primary-color);"><i class="fas fa-lock"></i> Login</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="admin-user" class="form-input" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="admin-pass" class="form-input" placeholder="***">
+            </div>
+            <button class="btn-save" style="width:100%; justify-content:center;"
+                onclick="performLogin()">Entrar</button>
+            <p id="login-error" style="color:red; font-size:12px; margin-top:10px; display:none;">Credenciais Inválidas!
+            </p>
+        </div>
+    </div>
+
+    <!-- LOAD DATA DYNAMICALLY -->
+    <script src="config.js"></script>
+    <script>
+        document.write(`<script src="data.js?v=${Date.now()}"><\/script>`);
+    </script>
+
+    <script>
+        // Init Check
+        if (typeof menuData === 'undefined') {
+            alert('Erro ao carregar dados. Verifique data.js');
+        }
+
+        let data = menuData;
+        const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        // Ensure hours structure exists
+        if (!data.openingHours) {
+            data.openingHours = {};
+            days.forEach((day, i) => {
+                data.openingHours[i] = { open: '18:00', close: '23:00', active: true };
+            });
+        }
+
+        // --- AUTH LOGIC ---
+        function checkAuth() {
+            const auth = sessionStorage.getItem('adminAuth');
+            if (auth) {
+                document.getElementById('login-modal').style.display = 'none';
+            } else {
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function performLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if (user && pass) {
+                const authValues = { login: user, password: pass };
+                sessionStorage.setItem('adminAuth', JSON.stringify(authValues));
+                document.getElementById('login-modal').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // --- NAVIGATION ---
+        function switchTab(tab) {
+            // Update Sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active'); // Needs event passed or use query
+
+            // Update View
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + tab).classList.add('active');
+
+            // Update Title
+            const titles = {
+                'orders': 'Gerenciar Pedidos',
+                'products': 'Gerenciar Produtos',
+                'neighborhoods': 'Bairros e Taxas',
+                'hours': 'Horários de Funcionamento'
+            };
+            document.getElementById('page-title').innerText = titles[tab] || 'Painel Admin';
+
+            // Auto-load Orders
+            if (tab === 'orders') {
+                renderOrders();
+            }
+        }
+
+        // --- RENDER ---
+        async function loadMenuData() {
+            try {
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+                const response = await fetch(`${apiHost}/api/menu`);
+                if (response.ok) {
+                    const freshData = await response.json();
+                    if (freshData) {
+                        data = freshData;
+                        // Ensure structure
+                        if (!data.openingHours) data.openingHours = {};
+                        console.log('Dados do Menu atualizados via API');
+                    }
+                }
+            } catch (e) {
+                console.warn('Usando dados locais (cache/static) pois falha na API:', e);
+            }
+        }
+
+        async function render() {
+            checkAuth(); // Check on init
+            await loadMenuData();
+            renderProducts();
+            renderNeighborhoods();
+            renderHours();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            data.categories.forEach((cat, catIndex) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <input type="text" value="${cat.name}" class="form-input" style="font-weight:bold; font-size:16px; width:60%;" onchange="updateCategory(${catIndex}, 'name', this.value)">
+                        <button class="btn-icon" onclick="deleteCategory(${catIndex})" title="Excluir Categoria"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+
+                const list = document.createElement('div');
+                const products = data.products[cat.id] || [];
+
+                products.forEach((prod, prodIndex) => {
+                    const row = document.createElement('div');
+                    row.className = 'item-row';
+                    row.innerHTML = `
+                        <img src="${prod.image}" class="item-img" title="Preview">
+                        <div style="flex:1;">
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <div style="flex:2;">
+                                    <label class="form-label">Nome do Produto</label>
+                                    <input type="text" class="form-input" value="${prod.name}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'name', this.value)">
+                                </div>
+                                <div style="flex:1;">
+                                    <label class="form-label">Preço (R$)</label>
+                                    <input type="number" class="form-input" value="${prod.price}" step="0.01" onchange="updateProduct('${cat.id}', ${prodIndex}, 'price', this.value)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descrição</label>
+                                <input type="text" class="form-input" value="${prod.description}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'description', this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">URL da Imagem</label>
+                                <input type="text" class="form-input" value="${prod.image}" onchange="updateProduct('${cat.id}', ${prodIndex}, 'image', this.value)">
+                            </div>
+                        </div>
+                        <button class="btn-icon" onclick="deleteProduct('${cat.id}', ${prodIndex})" style="align-self:center;"><i class="fas fa-trash"></i></button>
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-left:10px;">
+                            <button class="btn-star ${prod.isPopular ? 'active' : ''}" onclick="toggleFeatured('${cat.id}', ${prodIndex})" title="Destacar"><i class="fas fa-star"></i></button>
+                            <span style="font-size:10px; color:#94a3b8;">Destaque</span>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+
+                card.appendChild(list);
+
+                const btn = document.createElement('button');
+                btn.className = 'btn-add-sm';
+                btn.innerText = '+ Adicionar Produto';
+                btn.onclick = () => addProduct(cat.id);
+                card.appendChild(btn);
+
+                container.appendChild(card);
+            });
+        }
+
+        function renderNeighborhoods() {
+            const container = document.getElementById('neighborhoods-list');
+            container.innerHTML = '';
+
+            data.neighborhoods.forEach((n, index) => {
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.style.alignItems = 'center';
+                row.innerHTML = `
+                    <div style="flex:2;">
+                        <input type="text" class="form-input" value="${n.name}" placeholder="Nome do Bairro" onchange="updateNeighborhood(${index}, 'name', this.value)">
+                    </div>
+                    <div style="flex:1;">
+                        <input type="number" class="form-input" value="${n.fee}" step="0.50" placeholder="Taxa" onchange="updateNeighborhood(${index}, 'fee', this.value)">
+                    </div>
+                    <button class="btn-icon" onclick="deleteNeighborhood(${index})"><i class="fas fa-trash"></i></button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Global Error Handler
+        window.onerror = function (msg, url, line, col, error) {
+            const container = document.getElementById('orders-table-body');
+            if (container) container.innerHTML += `<tr><td colspan="6" style="padding:10px; color:red; font-size:12px;">Global Error: ${msg}</td></tr>`;
+            return false;
+        };
+
+        async function renderOrders() {
+            const container = document.getElementById('orders-table-body');
+            if (!container) { console.error('Table body not found'); return; }
+
+            container.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center;">Carregando...</td></tr>';
+
+            try {
+                // Use the configured API Base URL (points to Webhook Server on Port 3001)
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+
+                console.log('Fetching orders from:', `${apiHost}/api/transactions`);
+                const response = await fetch(`${apiHost}/api/transactions`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const transactions = await response.json();
+                console.log('Orders received:', transactions.length);
+
+                container.innerHTML = '';
+
+                // Sort by newest
+                transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                if (transactions.length === 0) {
+                    container.innerHTML = '<tr><td colspan="6" style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-inbox" style="font-size:32px; margin-bottom:10px;"></i><br>Nenhum pedido encontrado.</td></tr>';
+                    return;
+                }
+
+                transactions.forEach(t => {
+                    const statusColors = {
+                        'pending': '#f59e0b', // Orange
+                        'approved': '#10b981', // Green
+                        'manual': '#3b82f6'    // Blue
+                    };
+                    const color = statusColors[t.status] || '#64748b';
+                    const date = new Date(t.createdAt).toLocaleString('pt-BR');
+                    const orderId = t.orderId ? `#${t.orderId}` : (t.id.substr(0, 8) + '...');
+
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid #f1f5f9';
+                    tr.innerHTML = `
+                        <td style="padding:12px; font-weight:bold;">${orderId}</td>
+                        <td style="padding:12px;">${t.clientInfo ? t.clientInfo.name : 'Desconhecido'}</td>
+                        <td style="padding:12px;"><span style="background:${color}; color:white; padding:4px 8px; border-radius:12px; font-size:12px;">${t.status}</span></td>
+                        <td style="padding:12px;">${t.totalDisplay || ('R$ ' + t.amount)}</td>
+                        <td style="padding:12px; font-size:12px; color:#64748b;">${date}</td>
+                        <td style="padding:12px;">
+                            <button onclick='openOrderDetails(${JSON.stringify(t)})' style="background:#3b82f6; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i class="fas fa-eye"></i></button>
+                        </td>
+                    `;
+                    container.appendChild(tr);
+                });
+
+            } catch (e) {
+                console.error('Render Orders Error:', e);
+                container.innerHTML = `<tr><td colspan="6" style="padding:20px; text-align:center; color:red;">Erro ao carregar: ${e.message}</td></tr>`;
+            }
+        }
+
+        function openOrderDetails(order) {
+            document.getElementById('modal-order-id').innerText = order.orderId ? `#${order.orderId}` : order.id;
+
+            if (order.clientInfo) {
+                document.getElementById('modal-client-name').innerText = order.clientInfo.name;
+                document.getElementById('modal-client-phone').innerText = order.clientInfo.phone;
+                document.getElementById('modal-client-address').innerText = order.clientInfo.address + (order.clientInfo.district ? `, ${order.clientInfo.district}` : '');
+            }
+
+            const itemsList = document.getElementById('modal-items-list');
+            itemsList.innerHTML = '';
+            if (order.cart) {
+                order.cart.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = `${item.qty}x ${item.name} ${item.flavor2 ? '/ ' + item.flavor2 : ''}`;
+                    itemsList.appendChild(li);
+                });
+            }
+
+            document.getElementById('modal-total').innerText = order.totalDisplay || order.amount;
+            document.getElementById('modal-payment').innerText = order.type;
+
+            document.getElementById('order-modal').style.display = 'flex';
+        }
+
+        function renderHours() {
+            const container = document.getElementById('hours-list');
+            container.innerHTML = '';
+
+            days.forEach((dayName, index) => {
+                const h = data.openingHours[index] || { open: '18:00', close: '23:00', active: true };
+
+                const row = document.createElement('div');
+                row.className = 'hours-row';
+                row.innerHTML = `
+                    <span class="day-label">${dayName}</span>
+                    <input type="time" class="form-input" value="${h.open}" onchange="updateHour(${index}, 'open', this.value)">
+                    <input type="time" class="form-input" value="${h.close}" onchange="updateHour(${index}, 'close', this.value)">
+                    <label class="switch">
+                        <input type="checkbox" ${h.active ? 'checked' : ''} onchange="updateHour(${index}, 'active', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // --- DATA LOGIC ---
+        function updateProduct(catId, index, field, value) {
+            if (field === 'price') value = parseFloat(value);
+            data.products[catId][index][field] = value;
+            if (field === 'image') render();
+        }
+        function toggleFeatured(catId, index) {
+            data.products[catId][index].isPopular = !data.products[catId][index].isPopular;
+            render();
+        }
+        function addProduct(catId) {
+            data.products[catId].push({ id: 'prod_' + Date.now(), name: 'Novo Item', description: '', price: 0, image: '', isPopular: false });
+            render();
+        }
+        function deleteProduct(catId, index) { if (confirm('Apagar?')) { data.products[catId].splice(index, 1); render(); } }
+
+        function updateCategory(index, field, value) { data.categories[index][field] = value; }
+        function deleteCategory(index) { if (confirm('Apagar categoria e produtos?')) { var cid = data.categories[index].id; delete data.products[cid]; data.categories.splice(index, 1); render(); } }
+        function addNewCategory() { var id = 'c' + Date.now(); data.categories.push({ id: id, name: 'Nova Categoria' }); data.products[id] = []; render(); }
+
+        function updateNeighborhood(index, field, value) { if (field === 'fee') value = parseFloat(value); data.neighborhoods[index][field] = value; }
+        function addNeighborhood() { data.neighborhoods.push({ name: '', fee: 0 }); render(); }
+        function deleteNeighborhood(index) { data.neighborhoods.splice(index, 1); render(); }
+
+        function updateHour(dayIndex, field, value) {
+            if (!data.openingHours[dayIndex]) data.openingHours[dayIndex] = {};
+            data.openingHours[dayIndex][field] = value;
+        }
+
+        async function saveChanges() {
+            // Get credentials
+            const authStr = sessionStorage.getItem('adminAuth');
+            if (!authStr) {
+                alert('Você precisa fazer login!');
+                checkAuth();
+                return;
+            }
+            const auth = JSON.parse(authStr);
+
+            // Prepare Payload
+            const payload = {
+                ...data,
+                auth: auth
+            };
+
+            try {
+                // Use API Base URL from Config
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+                const apiUrl = `${apiHost}/admin/save-menu`;
+
+                console.log('Saving to:', apiUrl);
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert('✅ Salvo com sucesso!\n\nAgora atualize a página da LOJA (Index) para ver as mudanças.');
+                } else if (response.status === 401) {
+                    alert('❌ Acesso Negado! Login ou senha incorretos.');
+                    sessionStorage.removeItem('adminAuth');
+                    checkAuth();
+                } else {
+                    alert('❌ Erro ao salvar!');
+                }
+            } catch (e) {
+                alert('Erro de Conexão: ' + e.message + '\n\nTentando conectar em: ' + window.location.hostname + ':3001');
+            }
+        }
+
+        window.onload = render;
+
+    </script>
+</body>
+
+</html>
