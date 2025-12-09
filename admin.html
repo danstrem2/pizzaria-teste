@@ -548,8 +548,18 @@
             document.getElementById('view-' + tab).classList.add('active');
 
             // Update Title
-            const titles = { 'products': 'Gerenciar Produtos', 'neighborhoods': 'Bairros e Taxas', 'hours': 'Horários de Funcionamento' };
-            document.getElementById('page-title').innerText = titles[tab];
+            const titles = {
+                'orders': 'Gerenciar Pedidos',
+                'products': 'Gerenciar Produtos',
+                'neighborhoods': 'Bairros e Taxas',
+                'hours': 'Horários de Funcionamento'
+            };
+            document.getElementById('page-title').innerText = titles[tab] || 'Painel Admin';
+
+            // Auto-load Orders
+            if (tab === 'orders') {
+                renderOrders();
+            }
         }
 
         // --- RENDER ---
@@ -560,10 +570,10 @@
                 if (response.ok) {
                     const freshData = await response.json();
                     if (freshData) {
-                         data = freshData;
-                         // Ensure structure
-                         if (!data.openingHours) data.openingHours = {};
-                         console.log('Dados do Menu atualizados via API');
+                        data = freshData;
+                        // Ensure structure
+                        if (!data.openingHours) data.openingHours = {};
+                        console.log('Dados do Menu atualizados via API');
                     }
                 }
             } catch (e) {
@@ -668,31 +678,21 @@
             container.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center;">Carregando...</td></tr>';
 
             try {
-                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3000'; // Dashboard uses 3000 usually, but let's try relative or config
-                // Actually dashboard is served from 3000, and /api/transactions is on 3000. 
-                // Since admin.html is likely opened via file:// or github pages, we need to point to VPS Dashboard URL.
-                // BUT, config.js points apiBaseUrl to 3001 (Webhook/Bot).
-                // Dashboard API (3000) is separate. We need to standardize. 
-                // For now, let's assume we can hit port 3000 if we are on the same server, OR we need config for Dashboard URL.
-                // Let's use the same host as apiBaseUrl but change port to 3000 if possible, OR relies on a new config entry.
-                // Hack: Let's assume apiBaseUrl (3001) has the transactions endpoint? NO, server.js (3000) has it.
-                // Fix: We need to move /api/transactions to webhookServer (3001) OR Expose 3000 via Nginx too.
-                // EASIER FIX: Move transaction getter to webhookServer.js (3001) so we use single port!
+                // Use the configured API Base URL (points to Webhook Server on Port 3001)
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
 
-                // WAIT! I will assume simply calling the endpoints based on Config.
-                // Let's rely on standard Fetch to 'http://...:3000' or similar if reachable.
-                // Since user has Nginx on 80 -> 3001. We should ideally move Dashboard API to 3001 too or proxy /admin-api to 3000.
-
-                // ACTION: I will update webhookServer.js to serve /api/transactions as well! It already imports transactionService.
-                // So I can use apiBaseUrl (3001/ZapDomain).
-
-                const response = await fetch(`${window.AppConfig.apiBaseUrl}/api/transactions`);
+                const response = await fetch(`${apiHost}/api/transactions`);
                 const transactions = await response.json();
 
                 container.innerHTML = '';
 
                 // Sort by newest
                 transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                if (transactions.length === 0) {
+                    container.innerHTML = '<tr><td colspan="6" style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-inbox" style="font-size:32px; margin-bottom:10px;"></i><br>Nenhum pedido encontrado.</td></tr>';
+                    return;
+                }
 
                 transactions.forEach(t => {
                     const statusColors = {
