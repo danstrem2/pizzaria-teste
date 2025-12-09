@@ -673,16 +673,32 @@
             });
         }
 
+        // Global Error Handler
+        window.onerror = function (msg, url, line, col, error) {
+            const container = document.getElementById('orders-table-body');
+            if (container) container.innerHTML += `<tr><td colspan="6" style="padding:10px; color:red; font-size:12px;">Global Error: ${msg}</td></tr>`;
+            return false;
+        };
+
         async function renderOrders() {
             const container = document.getElementById('orders-table-body');
+            if (!container) { console.error('Table body not found'); return; }
+
             container.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center;">Carregando...</td></tr>';
 
             try {
                 // Use the configured API Base URL (points to Webhook Server on Port 3001)
                 const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
 
+                console.log('Fetching orders from:', `${apiHost}/api/transactions`);
                 const response = await fetch(`${apiHost}/api/transactions`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
                 const transactions = await response.json();
+                console.log('Orders received:', transactions.length);
 
                 container.innerHTML = '';
 
@@ -720,6 +736,7 @@
                 });
 
             } catch (e) {
+                console.error('Render Orders Error:', e);
                 container.innerHTML = `<tr><td colspan="6" style="padding:20px; text-align:center; color:red;">Erro ao carregar: ${e.message}</td></tr>`;
             }
         }
