@@ -630,16 +630,50 @@
             }
         }
 
-        function performLogin() {
+        async function performLogin() {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
+            const errorMsg = document.getElementById('login-error');
 
-            if (user && pass) {
+            if (!user || !pass) {
+                errorMsg.innerText = 'Preencha usuário e senha';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Show loading state
+            const btn = document.querySelector('#login-modal button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Verificando...';
+            btn.disabled = true;
+
+            try {
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
                 const authValues = { login: user, password: pass };
-                sessionStorage.setItem('adminAuth', JSON.stringify(authValues));
-                document.getElementById('login-modal').style.display = 'none';
-            } else {
-                document.getElementById('login-error').style.display = 'block';
+
+                // Test credentials against a secured endpoint
+                const response = await fetch(`${apiHost}/api/transactions`, {
+                    headers: { 'auth': JSON.stringify(authValues) }
+                });
+
+                if (response.ok) {
+                    // Success!
+                    sessionStorage.setItem('adminAuth', JSON.stringify(authValues));
+                    document.getElementById('login-modal').style.display = 'none';
+                    // Reload data now that we have auth
+                    renderOrders();
+                } else {
+                    // Failed
+                    throw new Error('Usuário ou senha incorretos');
+                }
+            } catch (e) {
+                console.error("Login failed:", e);
+                errorMsg.innerText = 'Acesso Negado: ' + e.message;
+                errorMsg.style.display = 'block';
+                sessionStorage.removeItem('adminAuth'); // Ensure clean state
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
 
