@@ -679,6 +679,90 @@ async function finalizeCheckout() {
     }
 }
 
+// --- GEOLOCATION LOGIC ---
+function useCurrentLocation() {
+    const statusDiv = document.getElementById('geo-status');
+    const streetInput = document.getElementById('client-street');
+    const cepInput = document.getElementById('client-cep');
+    const neighborhoodSelect = document.getElementById('client-neighborhood');
+
+    if (!navigator.geolocation) {
+        statusDiv.innerText = 'Geolocalização não suportada neste navegador.';
+        statusDiv.style.color = 'red';
+        return;
+    }
+
+    statusDiv.style.color = 'blue';
+    statusDiv.innerText = '🛰️ Obtendo coordenadas GPS...';
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        statusDiv.innerText = '🗺️ Buscando endereço no mapa...';
+
+        try {
+            // Reverse Geocoding via OpenStreetMap (Nominatim)
+            // Note: Referrer policy matters, ensure adequate headers if allowed, or use free tier politely.
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
+                headers: {
+                    'User-Agent': 'PizzariaApp/1.0 (contact@dasilvadocumentos.com.br)'
+                }
+            });
+
+            if (!res.ok) throw new Error('Falha na API de Mapas');
+
+            const data = await res.json();
+            const addr = data.address;
+
+            if (addr) {
+                if (streetInput && addr.road) streetInput.value = addr.road;
+                if (cepInput && addr.postcode) cepInput.value = addr.postcode;
+
+                // Smart Neighborhood Matching
+                const detectedDistrict = addr.suburb || addr.neighbourhood || addr.city_district || addr.quarter;
+
+                if (detectedDistrict && neighborhoodSelect) {
+                    let matchFound = false;
+                    for (let i = 0; i < neighborhoodSelect.options.length; i++) {
+                        const opt = neighborhoodSelect.options[i];
+                        if (opt.text.toLowerCase().includes(detectedDistrict.toLowerCase()) ||
+                            detectedDistrict.toLowerCase().includes(opt.text.toLowerCase())) {
+                            neighborhoodSelect.selectedIndex = i;
+                            neighborhoodSelect.dispatchEvent(new Event('change')); // Update Fee
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    if (matchFound) {
+                        statusDiv.style.color = 'green';
+                        statusDiv.innerText = `✅ Endereço encontrado: ${detectedDistrict}`;
+                    } else {
+                        statusDiv.style.color = '#eab308'; // Warning yellow
+                        statusDiv.innerText = `📍 Rua encontrada, mas bairro "${detectedDistrict}" não atendido?`;
+                    }
+                } else {
+                    statusDiv.style.color = 'green';
+                    statusDiv.innerText = '✅ Endereço preenchido!';
+                }
+            } else {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = 'Endereço não localizado com precisão.';
+            }
+        } catch (e) {
+            console.error('Geo Error:', e);
+            statusDiv.style.color = 'red';
+            statusDiv.innerText = 'Erro ao consultar mapa.';
+        }
+    }, (err) => {
+        console.warn('Geo Denied/Error:', err);
+        statusDiv.style.color = 'red';
+        let msg = 'Erro desconhecido.';
+        if (err.code === 1) msg = 'Permissão de localização negada.';
+        if (err.code === 2) msg = 'Sinal GPS indisponível.';
+        if (err.code === 3) msg = 'Tempo limite esgotado.';
+        statusDiv.innerText = msg;
+    }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
 // --- API SYNC ---
 async function fetchMenuData() {
     try {
