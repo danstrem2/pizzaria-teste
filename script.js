@@ -572,26 +572,7 @@ window.onload = async function () {
     if (typeof renderNeighborhoods === 'function') renderNeighborhoods();
 };
 
-function renderNeighborhoods() {
-    const select = document.getElementById('client-neighborhood');
-    if (!select) return;
-
-    // Clear existing (keep first option)
-    select.innerHTML = '<option value="">Selecione seu bairro...</option>';
-
-    if (menuData.neighborhoods && Array.isArray(menuData.neighborhoods)) {
-        menuData.neighborhoods.forEach(nb => {
-            const option = document.createElement('option');
-            option.value = nb.name; // ID or Name
-            option.textContent = `${nb.name} (+ R$ ${nb.fee.toFixed(2).replace('.', ',')})`;
-            option.dataset.fee = nb.fee;
-            select.appendChild(option);
-        });
-
-        // Add Listener
-        select.onchange = updateCheckoutTotal;
-    }
-}
+// renderNeighborhoods is already defined above with map badge support
 
 // --- CEP Lookup with ViaCEP API ---
 async function lookupCEP() {
@@ -654,4 +635,90 @@ async function lookupCEP() {
         console.error('CEP Lookup Error:', error);
         cepStatus.innerHTML = '<span style="color:#ef4444;">❌ Erro na busca. Tente novamente.</span>';
     }
+}
+
+// --- SEARCH MODAL ---
+function openSearchModal() {
+    document.getElementById('search-modal').classList.add('open');
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-results').innerHTML = '';
+    setTimeout(() => document.getElementById('search-input').focus(), 100);
+}
+
+function closeSearchModal() {
+    document.getElementById('search-modal').classList.remove('open');
+}
+
+function performSearch() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const resultsContainer = document.getElementById('search-results');
+
+    if (!query || query.length < 2) {
+        resultsContainer.innerHTML = '<p style="color:#666; text-align:center;">Digite pelo menos 2 caracteres</p>';
+        return;
+    }
+
+    // Search in all categories
+    const results = [];
+    menuData.categories.forEach(cat => {
+        cat.products.forEach(p => {
+            if (p.name.toLowerCase().includes(query) || (p.desc && p.desc.toLowerCase().includes(query))) {
+                results.push({ ...p, category: cat.name });
+            }
+        });
+    });
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<p style="color:#666; text-align:center;">Nenhum produto encontrado</p>';
+        return;
+    }
+
+    resultsContainer.innerHTML = results.map(p => `
+        <div onclick="closeSearchModal(); openProductModal('${p.name.replace(/'/g, "\\'")}', ${p.price}, '${(p.desc || '').replace(/'/g, "\\'")}', '${p.category}')" 
+             style="padding:12px; border-bottom:1px solid #eee; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <strong>${p.name}</strong>
+                <div style="font-size:12px; color:#666;">${p.category}</div>
+            </div>
+            <span style="color:var(--primary-color); font-weight:bold;">R$ ${p.price.toFixed(2).replace('.', ',')}</span>
+        </div>
+    `).join('');
+}
+
+// --- SHARE STORE ---
+function shareStore() {
+    const shareData = {
+        title: 'Pizzaria Habibs',
+        text: 'Confira as melhores pizzas da cidade! 🍕',
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        navigator.share(shareData).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Link copiado para a área de transferência! 📋');
+        }).catch(() => {
+            prompt('Copie o link:', window.location.href);
+        });
+    }
+}
+
+// --- STORE INFO MODAL ---
+function openStoreInfoModal() {
+    // Load store info from menuData if available
+    if (menuData.storeInfo) {
+        const info = menuData.storeInfo;
+        document.getElementById('store-info-name').textContent = info.name || 'Pizzaria Habibs';
+        document.getElementById('store-info-slogan').textContent = info.slogan || 'As melhores pizzas da cidade!';
+        document.getElementById('store-info-phone').textContent = info.phone || '(88) 99999-9999';
+        document.getElementById('store-info-address').textContent = info.address || 'Endereço não informado';
+        document.getElementById('store-info-delivery-time').textContent = info.deliveryTime || '40';
+    }
+    document.getElementById('store-info-modal').classList.add('open');
+}
+
+function closeStoreInfoModal() {
+    document.getElementById('store-info-modal').classList.remove('open');
 }

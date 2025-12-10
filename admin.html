@@ -367,6 +367,9 @@
                     Horários</button></li>
             <li class="nav-item"><button class="nav-btn" onclick="switchTab('profile')"><i class="fas fa-store"></i>
                     Perfil da Loja</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('analytics')"><i
+                        class="fas fa-chart-bar"></i>
+                    Mais Pedidos</button></li>
         </ul>
         <a href="index.html" target="_blank" class="media-link"><i class="fas fa-external-link-alt"></i> Ver Loja
             Online</a>
@@ -452,6 +455,33 @@
                     style="background:#ef4444; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600;">
                     🗑️ Limpar TODOS os Pedidos
                 </button>
+            </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="view-analytics" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">📊 Produtos Mais Pedidos</span>
+                    <button class="btn-add-sm" onclick="renderAnalytics()">🔄 Atualizar</button>
+                </div>
+                <p style="color:#64748b; margin-bottom:15px;">Ranking baseado nos pedidos reais realizados.</p>
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th style="padding:12px; text-align:left;">Posição</th>
+                            <th style="padding:12px; text-align:left;">Produto</th>
+                            <th style="padding:12px; text-align:center;">Quantidade</th>
+                            <th style="padding:12px; text-align:right;">Faturamento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-table-body">
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">Clique em
+                                "Atualizar" para carregar dados</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -629,13 +659,18 @@
                 'products': 'Gerenciar Produtos',
                 'neighborhoods': 'Bairros e Taxas',
                 'hours': 'Horários de Funcionamento',
-                'profile': 'Perfil da Loja'
+                'profile': 'Perfil da Loja',
+                'analytics': 'Produtos Mais Pedidos'
             };
             document.getElementById('page-title').innerText = titles[tab] || 'Painel Admin';
 
             // Auto-load Orders
             if (tab === 'orders') {
                 renderOrders();
+            }
+            // Auto-load Analytics
+            if (tab === 'analytics') {
+                renderAnalytics();
             }
         }
 
@@ -967,8 +1002,8 @@
         function addNewCategory() { var id = 'c' + Date.now(); data.categories.push({ id: id, name: 'Nova Categoria' }); data.products[id] = []; render(); }
 
         function updateNeighborhood(index, field, value) { if (field === 'fee') value = parseFloat(value); data.neighborhoods[index][field] = value; }
-        function addNeighborhood() { data.neighborhoods.push({ name: '', fee: 0 }); render(); }
-        function deleteNeighborhood(index) { data.neighborhoods.splice(index, 1); render(); }
+        function addNeighborhood() { data.neighborhoods.push({ name: '', fee: 0 }); renderNeighborhoods(); }
+        function deleteNeighborhood(index) { data.neighborhoods.splice(index, 1); renderNeighborhoods(); }
 
         function updateHour(dayIndex, field, value) {
             if (!data.openingHours[dayIndex]) data.openingHours[dayIndex] = {};
@@ -1043,6 +1078,51 @@
                 }
             } catch (e) {
                 alert('Erro de Conexão: ' + e.message + '\n\nTentando conectar em: ' + window.location.hostname + ':3001');
+            }
+        }
+
+        async function renderAnalytics() {
+            const tbody = document.getElementById('analytics-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Carregando...</td></tr>';
+
+            try {
+                const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+                const response = await fetch(`${apiHost}/api/transactions`);
+                const transactions = await response.json();
+
+                // Aggregate products
+                const productStats = {};
+                transactions.forEach(t => {
+                    if (t.items && Array.isArray(t.items)) {
+                        t.items.forEach(item => {
+                            const key = item.name;
+                            if (!productStats[key]) {
+                                productStats[key] = { name: key, qty: 0, revenue: 0 };
+                            }
+                            productStats[key].qty += item.qty || 1;
+                            productStats[key].revenue += (item.price || 0) * (item.qty || 1);
+                        });
+                    }
+                });
+
+                // Sort by quantity
+                const sorted = Object.values(productStats).sort((a, b) => b.qty - a.qty);
+
+                if (sorted.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">Nenhum pedido encontrado</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = sorted.slice(0, 20).map((p, i) => `
+                    <tr style="border-bottom:1px solid #e2e8f0;">
+                        <td style="padding:12px;">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1)}</td>
+                        <td style="padding:12px; font-weight:500;">${p.name}</td>
+                        <td style="padding:12px; text-align:center;">${p.qty}</td>
+                        <td style="padding:12px; text-align:right; color:#22c55e;">R$ ${p.revenue.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#ef4444;">Erro ao carregar dados</td></tr>';
             }
         }
 

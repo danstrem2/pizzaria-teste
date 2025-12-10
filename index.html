@@ -18,8 +18,9 @@
             <span class="shop-name">Pizzaria Habibs</span>
         </div>
         <div class="header-icons">
-            <i class="fas fa-search"></i>
-            <i class="fas fa-share-alt"></i>
+            <i class="fas fa-search" onclick="openSearchModal()" title="Pesquisar"></i>
+            <i class="fas fa-share-alt" onclick="shareStore()" title="Compartilhar"></i>
+            <i class="fas fa-info-circle" onclick="openStoreInfoModal()" title="Sobre"></i>
         </div>
     </header>
 
@@ -80,6 +81,14 @@
         <div class="category-tabs" id="category-tabs" style="animation: fadeInUp 0.5s ease-out;">
             <!-- Inject via JS -->
         </div>
+
+        <!-- Highlights/Promotions Section -->
+        <section id="highlights-section" style="animation: fadeInUp 0.55s ease-out; display:none;">
+            <div class="section-title">⭐ Destaques & Promoções</div>
+            <div class="carousel" id="highlights-carousel">
+                <!-- Inject via JS -->
+            </div>
+        </section>
 
         <!-- Popular Section -->
         <section style="animation: fadeInUp 0.6s ease-out;">
@@ -260,6 +269,44 @@
             </div>
 
             <button class="add-to-cart-btn" onclick="addToCartFromModal()">Adicionar</button>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="search-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Pesquisar</h3>
+                <button class="close-modal" onclick="closeSearchModal()">&times;</button>
+            </div>
+            <input type="text" id="search-input" placeholder="Digite o nome do produto..."
+                style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;"
+                oninput="performSearch()">
+            <div id="search-results" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- Store Info Modal -->
+    <div class="modal" id="store-info-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🍕 Sobre a Loja</h3>
+                <button class="close-modal" onclick="closeStoreInfoModal()">&times;</button>
+            </div>
+            <div style="text-align:center; padding:10px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/3132/3132693.png" alt="Logo"
+                    style="width:80px; margin-bottom:15px;">
+                <h2 id="store-info-name" style="margin-bottom:10px;">Pizzaria Habibs</h2>
+                <p id="store-info-slogan" style="color:#666; margin-bottom:15px;">As melhores pizzas da cidade!</p>
+                <div style="text-align:left; background:#f8f9fa; padding:15px; border-radius:10px;">
+                    <p><i class="fas fa-phone" style="color:var(--primary-color); width:25px;"></i> <span
+                            id="store-info-phone">(88) 99999-9999</span></p>
+                    <p><i class="fas fa-map-marker-alt" style="color:var(--primary-color); width:25px;"></i> <span
+                            id="store-info-address">Rua das Pizzas, 123</span></p>
+                    <p><i class="fas fa-clock" style="color:var(--primary-color); width:25px;"></i> Entrega em ~<span
+                            id="store-info-delivery-time">40</span> min</p>
+                </div>
+            </div>
         </div>
     </div>
 
