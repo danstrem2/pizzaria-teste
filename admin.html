@@ -897,10 +897,12 @@
         }
 
         // --- NAVIGATION ---
+        // --- NAVIGATION ---
         function switchTab(tab) {
             // Update Sidebar
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active'); // Needs event passed or use query
+            // Fix: Access event.currentTarget directly if available, or query specifically
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
 
             // Update View
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -924,6 +926,11 @@
             // Auto-load Analytics
             if (tab === 'analytics') {
                 renderAnalytics();
+            }
+
+            // MOBILE FIX: Auto-close sidebar on click if mobile
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('active');
             }
         }
 
