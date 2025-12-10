@@ -694,16 +694,15 @@
         }
 
         // --- AUTH LOGIC ---
+        // --- AUTH LOGIC ---
         function checkAuth() {
-            // STRICT SECURITY: Always force login on refresh/open
-            // sessionStorage.removeItem('adminAuth'); // Uncomment to force logout on every refresh
-
-            // Current behavior: Only checking if auth exists, but user wants to ALWAYS ask.
-            // So we will NOT auto-unlock even if auth exists in storage, effectively ignoring previous sessions.
-            // Or better, we explicitly clear it.
-
-            sessionStorage.removeItem('adminAuth');
-            document.getElementById('login-modal').style.display = 'flex';
+            // Standard Security: Check for existing session
+            const auth = sessionStorage.getItem('adminAuth');
+            if (auth) {
+                document.getElementById('login-modal').style.display = 'none';
+            } else {
+                document.getElementById('login-modal').style.display = 'flex';
+            }
         }
 
         async function performLogin() {
