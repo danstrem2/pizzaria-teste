@@ -365,6 +365,8 @@
                         class="fas fa-map-marker-alt"></i> Bairros & Taxas</button></li>
             <li class="nav-item"><button class="nav-btn" onclick="switchTab('hours')"><i class="fas fa-clock"></i>
                     Horários</button></li>
+            <li class="nav-item"><button class="nav-btn" onclick="switchTab('profile')"><i class="fas fa-store"></i>
+                    Perfil da Loja</button></li>
         </ul>
         <a href="index.html" target="_blank" class="media-link"><i class="fas fa-external-link-alt"></i> Ver Loja
             Online</a>
@@ -408,6 +410,49 @@
             </div>
             <p style="color:var(--text-light); font-size:14px; margin-top:10px;">* Desmarque o botão para definir como
                 "Fechado" no dia.</p>
+        </div>
+
+        <!-- PROFILE VIEW -->
+        <div id="view-profile" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <span class="section-title">Informações da Loja</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome da Loja</label>
+                    <input type="text" id="store-name" class="form-input" placeholder="Ex: Pizzaria Habibs">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefone / WhatsApp</label>
+                    <input type="text" id="store-phone" class="form-input" placeholder="Ex: (88) 99999-9999">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Endereço da Loja</label>
+                    <input type="text" id="store-address" class="form-input"
+                        placeholder="Ex: Rua das Pizzas, 123 - Centro">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tempo Médio de Entrega (minutos)</label>
+                    <input type="number" id="store-delivery-time" class="form-input" placeholder="Ex: 40">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Slogan / Descrição</label>
+                    <input type="text" id="store-slogan" class="form-input"
+                        placeholder="Ex: As melhores pizzas da cidade!">
+                </div>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="card" style="border-left:4px solid #ef4444;">
+                <div class="card-header">
+                    <span class="section-title" style="color:#ef4444;">⚠️ Zona de Perigo (Testes)</span>
+                </div>
+                <p style="color:#64748b; margin-bottom:15px;">Ações irreversíveis para fins de teste.</p>
+                <button onclick="clearAllOrders()"
+                    style="background:#ef4444; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600;">
+                    🗑️ Limpar TODOS os Pedidos
+                </button>
+            </div>
         </div>
 
         <!-- ORDERS VIEW -->
@@ -583,7 +628,8 @@
                 'orders': 'Gerenciar Pedidos',
                 'products': 'Gerenciar Produtos',
                 'neighborhoods': 'Bairros e Taxas',
-                'hours': 'Horários de Funcionamento'
+                'hours': 'Horários de Funcionamento',
+                'profile': 'Perfil da Loja'
             };
             document.getElementById('page-title').innerText = titles[tab] || 'Painel Admin';
 
@@ -753,7 +799,12 @@
                 const statusFilter = document.getElementById('status-filter').value;
                 let filteredTransactions = transactions;
                 if (statusFilter) {
-                    filteredTransactions = transactions.filter(t => t.status === statusFilter);
+                    if (statusFilter === 'pending_manual') {
+                        // Match both pending and pending_manual
+                        filteredTransactions = transactions.filter(t => t.status === 'pending' || t.status === 'pending_manual');
+                    } else {
+                        filteredTransactions = transactions.filter(t => t.status === statusFilter);
+                    }
                 }
 
                 // Sort by newest
@@ -922,6 +973,34 @@
         function updateHour(dayIndex, field, value) {
             if (!data.openingHours[dayIndex]) data.openingHours[dayIndex] = {};
             data.openingHours[dayIndex][field] = value;
+        }
+
+        async function clearAllOrders() {
+            if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os pedidos!\n\nTem certeza? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
+            const auth = JSON.parse(sessionStorage.getItem('adminAuth') || '{}');
+
+            try {
+                const response = await fetch(`${apiHost}/api/transactions`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ auth })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Todos os pedidos foram removidos!');
+                    renderOrders();
+                } else {
+                    alert('Erro: ' + (result.error || 'Desconhecido'));
+                }
+            } catch (e) {
+                console.error('Clear Orders Error:', e);
+                alert('Erro ao limpar pedidos: ' + e.message);
+            }
         }
 
         async function saveChanges() {

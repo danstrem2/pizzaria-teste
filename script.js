@@ -62,6 +62,13 @@ function renderNeighborhoods() {
     if (select) {
         select.addEventListener('change', updateCheckoutTotal);
     }
+
+    // Update min fee display
+    const minFeeEl = document.getElementById('min-delivery-fee');
+    if (minFeeEl && menuData.neighborhoods.length > 0) {
+        const minFee = Math.min(...menuData.neighborhoods.map(n => n.fee));
+        minFeeEl.innerHTML = `🛵 Taxa de entrega a partir de <strong>R$ ${minFee.toFixed(2).replace('.', ',')}</strong>`;
+    }
 }
 
 // --- Navigation ---
@@ -583,5 +590,68 @@ function renderNeighborhoods() {
 
         // Add Listener
         select.onchange = updateCheckoutTotal;
+    }
+}
+
+// --- CEP Lookup with ViaCEP API ---
+async function lookupCEP() {
+    const cepInput = document.getElementById('client-cep');
+    const cepStatus = document.getElementById('cep-status');
+    const streetInput = document.getElementById('client-street');
+    const neighborhoodSelect = document.getElementById('client-neighborhood');
+    const neighborhoodWarning = document.getElementById('neighborhood-warning');
+
+    // Clean CEP (remove dash and spaces)
+    const cep = cepInput.value.replace(/\D/g, '');
+
+    if (cep.length !== 8) {
+        cepStatus.innerHTML = '<span style="color:#ef4444;">❌ CEP deve ter 8 dígitos</span>';
+        return;
+    }
+
+    cepStatus.innerHTML = '<span style="color:#666;">⏳ Buscando...</span>';
+    neighborhoodWarning.style.display = 'none';
+
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
+
+        if (data.erro) {
+            cepStatus.innerHTML = '<span style="color:#ef4444;">❌ CEP não encontrado</span>';
+            return;
+        }
+
+        // Auto-fill street
+        if (streetInput && data.logradouro) {
+            streetInput.value = data.logradouro;
+        }
+
+        // Check if neighborhood is in our delivery area
+        const viaBairro = data.bairro.toLowerCase().trim();
+        let found = false;
+
+        for (let i = 0; i < neighborhoodSelect.options.length; i++) {
+            const opt = neighborhoodSelect.options[i];
+            if (opt.value && opt.value.toLowerCase().trim() === viaBairro) {
+                neighborhoodSelect.selectedIndex = i;
+                neighborhoodSelect.dispatchEvent(new Event('change'));
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            cepStatus.innerHTML = `<span style="color:#22c55e;">✅ ${data.bairro}, ${data.localidade}</span>`;
+            neighborhoodWarning.style.display = 'none';
+        } else {
+            cepStatus.innerHTML = `<span style="color:#f59e0b;">⚠️ ${data.bairro}, ${data.localidade}</span>`;
+            neighborhoodWarning.innerHTML = `❌ Infelizmente não entregamos no bairro "${data.bairro}". Verifique os bairros atendidos.`;
+            neighborhoodWarning.style.display = 'block';
+            neighborhoodSelect.selectedIndex = 0;
+        }
+
+    } catch (error) {
+        console.error('CEP Lookup Error:', error);
+        cepStatus.innerHTML = '<span style="color:#ef4444;">❌ Erro na busca. Tente novamente.</span>';
     }
 }
