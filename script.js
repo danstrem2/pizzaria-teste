@@ -29,7 +29,48 @@ function init() {
     renderProducts();
     setupNav();
     updateCartUI();
-    renderNeighborhoods(); // New
+    renderNeighborhoods();
+    updateStoreStatus(); // Sync open/closed status
+}
+
+// --- Store Status (Open/Closed) ---
+function updateStoreStatus() {
+    const statusDot = document.getElementById('store-status-dot');
+    const statusText = document.getElementById('store-status-text');
+    if (!statusDot || !statusText) return;
+
+    const now = new Date();
+    const dayIndex = now.getDay(); // 0 = Sunday
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+
+    const hours = menuData.openingHours ? menuData.openingHours[dayIndex] : null;
+
+    if (!hours || !hours.active) {
+        // Closed today
+        statusDot.style.background = '#ef4444';
+        statusDot.style.animation = 'none';
+        statusText.textContent = 'Fechado hoje';
+        return;
+    }
+
+    // Parse open/close times
+    const [openH, openM] = hours.open.split(':').map(Number);
+    const [closeH, closeM] = hours.close.split(':').map(Number);
+    const openTime = openH * 60 + openM;
+    const closeTime = closeH * 60 + closeM;
+
+    if (currentTime >= openTime && currentTime < closeTime) {
+        // Open
+        statusDot.style.background = '#22c55e';
+        statusDot.style.animation = 'pulse 1.5s infinite';
+        const deliveryTime = menuData.storeInfo?.deliveryTime || 40;
+        statusText.textContent = `Aberto agora • Entrega em ~${deliveryTime}min`;
+    } else {
+        // Closed
+        statusDot.style.background = '#ef4444';
+        statusDot.style.animation = 'none';
+        statusText.textContent = `Fechado • Abre às ${hours.open}`;
+    }
 }
 
 function renderNeighborhoods() {
