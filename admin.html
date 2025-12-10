@@ -803,7 +803,11 @@
                 const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
 
                 console.log('Fetching orders from:', `${apiHost}/api/transactions`);
-                const response = await fetch(`${apiHost}/api/transactions`);
+                console.log('Fetching orders from:', `${apiHost}/api/transactions`);
+                const authStr = sessionStorage.getItem('adminAuth');
+                const response = await fetch(`${apiHost}/api/transactions`, {
+                    headers: { 'auth': authStr || '{}' }
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
@@ -880,23 +884,48 @@
 
                     const tr = document.createElement('tr');
                     tr.style.borderBottom = '1px solid #f1f5f9';
-                    tr.innerHTML = `
-                        <td style="padding:12px; font-weight:bold;">${orderIdDisplay}</td>
-                        <td style="padding:12px;">${t.clientInfo ? t.clientInfo.name : 'Desconhecido'}</td>
-                        <td style="padding:12px;">
-                            <select onchange="updateOrderStatus('${t.id}', this.value)" style="padding:6px; border-radius:6px; border:1px solid #ddd; background:${color}; color:white; font-weight:bold; cursor:pointer;">
-                                <option value="${t.status}" selected>${label}</option>
-                                <option value="preparing" ${t.status === 'preparing' ? 'disabled' : ''}>🍕 Preparando</option>
-                                <option value="out_for_delivery" ${t.status === 'out_for_delivery' ? 'disabled' : ''}>🛵 Saiu p/ Entrega</option>
-                                <option value="delivered" ${t.status === 'delivered' ? 'disabled' : ''}>✅ Entregue</option>
-                            </select>
-                        </td>
-                        <td style="padding:12px;">${t.totalDisplay || ('R$ ' + t.amount)}</td>
-                        <td style="padding:12px; font-size:12px; color:#64748b;">${date}</td>
-                        <td style="padding:12px;">
-                            <button onclick='openOrderDetails(${index})' style="background:#3b82f6; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i class="fas fa-eye"></i></button>
-                        </td>
-                    `;
+
+                    // Create cells safely
+                    const tdId = document.createElement('td');
+                    tdId.style.padding = '12px';
+                    tdId.style.fontWeight = 'bold';
+                    tdId.innerText = orderIdDisplay;
+
+                    const tdName = document.createElement('td');
+                    tdName.style.padding = '12px';
+                    tdName.innerText = t.clientInfo ? t.clientInfo.name : 'Desconhecido'; // SAFE: innerText escapes HTML
+
+                    const tdStatus = document.createElement('td');
+                    tdStatus.style.padding = '12px';
+                    tdStatus.innerHTML = `
+                        <select onchange="updateOrderStatus('${t.id}', this.value)" style="padding:6px; border-radius:6px; border:1px solid #ddd; background:${color}; color:white; font-weight:bold; cursor:pointer;">
+                            <option value="${t.status}" selected>${label}</option>
+                            <option value="preparing" ${t.status === 'preparing' ? 'disabled' : ''}>🍕 Preparando</option>
+                            <option value="out_for_delivery" ${t.status === 'out_for_delivery' ? 'disabled' : ''}>🛵 Saiu p/ Entrega</option>
+                            <option value="delivered" ${t.status === 'delivered' ? 'disabled' : ''}>✅ Entregue</option>
+                        </select>`;
+
+                    const tdTotal = document.createElement('td');
+                    tdTotal.style.padding = '12px';
+                    tdTotal.innerText = t.totalDisplay || ('R$ ' + t.amount);
+
+                    const tdDate = document.createElement('td');
+                    tdDate.style.padding = '12px';
+                    tdDate.style.fontSize = '12px';
+                    tdDate.style.color = '#64748b';
+                    tdDate.innerText = date;
+
+                    const tdActions = document.createElement('td');
+                    tdActions.style.padding = '12px';
+                    tdActions.innerHTML = `<button onclick='openOrderDetails(${index})' style="background:#3b82f6; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i class="fas fa-eye"></i></button>`;
+
+                    tr.appendChild(tdId);
+                    tr.appendChild(tdName);
+                    tr.appendChild(tdStatus);
+                    tr.appendChild(tdTotal);
+                    tr.appendChild(tdDate);
+                    tr.appendChild(tdActions);
+
                     container.appendChild(tr);
                 });
 
@@ -1087,7 +1116,10 @@
 
             try {
                 const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
-                const response = await fetch(`${apiHost}/api/transactions`);
+                const authStr = sessionStorage.getItem('adminAuth');
+                const response = await fetch(`${apiHost}/api/transactions`, {
+                    headers: { 'auth': authStr || '{}' }
+                });
                 const transactions = await response.json();
 
                 // Aggregate products
