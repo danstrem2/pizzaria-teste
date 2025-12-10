@@ -610,6 +610,8 @@ async function finalizeCheckout() {
         return;
     }
 
+
+
     // Prepare Payload
     let subtotal = 0;
     const cartItems = cart.map(item => {

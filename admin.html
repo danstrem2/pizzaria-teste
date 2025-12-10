@@ -143,6 +143,88 @@
             gap: 8px;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Socket Status Indicator --- */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e2e8f0;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            /* Default Red */
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+        .connection-status.connected .status-dot {
+            background: #22c55e;
+            /* Green */
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+
+        .connection-status.connected {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        .menu-toggle {
+            display: none;
+            /* Hidden on Desktop */
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 1000;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .nav-btn .fa-chevron-right {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: block;
+                margin-right: 15px;
+            }
+
+            .card {
+                overflow-x: auto;
+                /* Scrollable Tables */
+            }
+        }
+
         .btn-save:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
@@ -423,8 +505,23 @@
     <div class="main-content">
 
         <div class="header">
-            <h1 class="page-title" id="page-title">Gerenciar Produtos</h1>
-            <button class="btn-save" onclick="saveChanges()"><i class="fas fa-save"></i> Salvar Alterações</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title" id="page-title">Gerenciar Pedidos</h1>
+            </div>
+
+            <div class="user-info">
+                <!-- Socket Status Badge -->
+                <div id="socket-status" class="connection-status" title="Status da Conexão em Tempo Real"
+                    onclick="checkConnectionDetails()">
+                    <div class="status-dot"></div>
+                    <span id="socket-status-text">Conectando...</span>
+                </div>
+
+                <button class="btn-save" onclick="saveChanges()">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </div>
         </div>
 
         <!-- PRODUCTS VIEW -->
@@ -661,15 +758,62 @@
         const apiHost = (window.AppConfig && window.AppConfig.apiBaseUrl) ? window.AppConfig.apiBaseUrl : 'http://localhost:3001';
         const socket = io(apiHost);
 
+        // UI Helpers for Socket
+        const statusEl = document.getElementById('socket-status');
+        const statusText = document.getElementById('socket-status-text');
+
+        function updateSocketStatus(status, msg) {
+            if (statusEl) {
+                statusEl.className = 'connection-status ' + (status === 'connected' ? 'connected' : 'disconnected');
+                if (statusText) statusText.innerText = msg;
+            }
+        }
+
         socket.on('connect', () => {
             console.log('🔌 Conectado ao servidor WebSocket!');
+            updateSocketStatus('connected', 'Conectado (Tempo Real)');
         });
+
+        socket.on('disconnect', () => {
+            console.log('❌ Desconectado do WebSocket');
+            updateSocketStatus('disconnected', 'Desconectado');
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('⚠️ Erro de Conexão Socket:', err);
+            updateSocketStatus('disconnected', 'Erro de Conexão');
+        });
+
+        function checkConnectionDetails() {
+            const isSecure = window.location.protocol === 'https:';
+            const status = statusText.innerText;
+            if (status.includes('Conectado')) {
+                alert('✅ Tudo Certo! O painel está recebendo pedidos em Tempo Real.');
+            } else {
+                let msg = '❌ O sistema não está conectado em Tempo Real.\n\n';
+                msg += 'Motivo Provável:\n';
+                if (isSecure && apiHost.includes('http:')) {
+                    msg += '🔒 BLOQUEIO DE SEGURANÇA (Mixed Content)\n';
+                    msg += 'Você está acessando por HTTPS (Cadeado), mas o servidor é HTTP.\n';
+                    msg += 'SOLUÇÃO: Configure o HTTPS na VPS (Ver INSTRUCOES_ATUALIZACAO.md).';
+                } else {
+                    msg += 'O servidor da VPS parece estar desligado ou inacessível.\n';
+                    msg += 'Tente reiniciar o bot na VPS: pm2 restart all';
+                }
+                alert(msg);
+            }
+        }
+
+        // --- Mobile Sidebar Toggle ---
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
 
         socket.on('new-order', (order) => {
             console.log('🍕 NOVO PEDIDO RECEBIDO VIA SOCKET:', order);
-            // Play sound (optional, browser policy requires interaction first)
-            // const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); 
-            // audio.play().catch(e => console.log('Audio blocked:', e));
+            // Play sound
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => console.log('Audio blocked (needs interaction):', e));
 
             // Show alert/notification if supported
             if (Notification.permission === "granted") {
