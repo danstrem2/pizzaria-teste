@@ -62,11 +62,55 @@ async function fetchDynamicMenu() {
             // Re-render components that depend on data
             renderNeighborhoods();
             updateStoreStatus();
+            updateStoreInfoUI(); // FORCE UI UPDATE
         } else {
             logDebug("⚠️ Aviso: API retornou dados inválidos.");
         }
     } catch (e) {
         logDebug("❌ Erro ao sincronizar (Usando dados locais): " + e.message);
+    }
+}
+
+function updateStoreInfoUI() {
+    if (!window.menuData || !window.menuData.storeInfo) return;
+
+    const info = window.menuData.storeInfo;
+
+    // Update Header/Title
+    document.title = info.name || "Pizzaria";
+
+    // Header text
+    const headerTitle = document.querySelector('header h1');
+    if (headerTitle) headerTitle.innerText = info.name;
+
+    const headerSlogan = document.querySelector('header p');
+    if (headerSlogan) headerSlogan.innerText = info.slogan || "As melhores pizzas da cidade!";
+
+    // Update Modal
+    // Update Modal
+    const modalTitle = document.getElementById('store-info-name');
+    if (modalTitle) modalTitle.innerText = info.name;
+
+    // Try finding modal elements by context if IDs vary
+    // Try finding modal elements by context if IDs vary
+    const modalSlogan = document.getElementById('store-info-slogan');
+    if (modalSlogan) modalSlogan.innerText = info.slogan;
+
+    // Phone / Address - usually found by icon proximity or specific IDs
+    // Assuming standard layout from provided screenshots/context
+    const phoneIcon = document.querySelector('#store-info-modal .fa-whatsapp');
+    if (phoneIcon && phoneIcon.nextSibling) {
+        phoneIcon.nextSibling.textContent = " " + (info.phone || "(00) 00000-0000");
+    }
+
+    const mapIcon = document.querySelector('#store-info-modal .fa-map-marker-alt');
+    if (mapIcon && mapIcon.nextSibling) {
+        mapIcon.nextSibling.textContent = " " + (info.address || "Endereço não informado");
+    }
+
+    const clockIcon = document.querySelector('#store-info-modal .fa-clock');
+    if (clockIcon && clockIcon.nextSibling) {
+        clockIcon.nextSibling.textContent = " Entrega em ~" + (info.deliveryTime || "40") + " min";
     }
 }
 
