@@ -1,4 +1,4 @@
-const menuData = {
+window.menuData = {
     "categories": [
         {
             "id": "pizzas",

@@ -311,15 +311,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
-    <!-- Dynamic Load to prevent Cache -->
-    <script>
-        const v = Date.now();
-        // Load data.js synchronously (blocking) so it is 100% available for script.js
-        document.write('<script src="config.js?v=' + v + '"><\/script>');
-        document.write('<script src="data.js?v=' + v + '"><\/script>');
-        // Load script.js last
-        document.write('<script src="script.js?v=' + v + '"><\/script>');
-    </script>
+    <script src="config.js?v=2.0"></script>
+    <script src="data.js?v=2.0"></script>
+    <script src="script.js?v=2.0"></script>
 </body>
 
 </html>

@@ -22,17 +22,34 @@ const modalPrice = document.getElementById('modal-price');
 const modalQty = document.getElementById('modal-qty');
 const modalObs = document.getElementById('modal-obs');
 
+// --- DEBUGGER VISUAL ---
+function logDebug(msg) {
+    let debugBox = document.getElementById('debug-box');
+    if (!debugBox) {
+        debugBox = document.createElement('div');
+        debugBox.id = 'debug-box';
+        debugBox.style.cssText = "position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.8); color:#0f0; padding:10px; font-family:monospace; font-size:12px; z-index:9999;";
+        document.body.appendChild(debugBox);
+    }
+    const time = new Date().toLocaleTimeString();
+    debugBox.innerHTML += `<div>[${time}] ${msg}</div>`;
+    console.log(`[DEBUG] ${msg}`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    logDebug("DOM Loaded. Iniciando script...");
+    init();
+});
+
 // --- Initialization ---
 function init() {
-    renderCategories();
-    renderPopular();
-    renderProducts();
+    logDebug("Função init() chamada.");
     setupNav();
     updateCartUI();
     renderNeighborhoods();
-    updateStoreStatus(); // Sync open/closed status
-    // Update status every minute
+    updateStoreStatus();
     setInterval(updateStoreStatus, 60000);
+    logDebug("Init concluído. Intervalo configurado.");
 }
 
 // --- Store Status (Open/Closed) ---
@@ -40,23 +57,36 @@ function updateStoreStatus() {
     const statusDot = document.getElementById('store-status-dot');
     const statusText = document.getElementById('store-status-text');
 
-    if (!statusDot || !statusText) return;
+    if (!statusDot || !statusText) {
+        logDebug("Elementos de status (dot/text) não encontrados no HTML!");
+        return;
+    }
+
+    logDebug("Verificando status da loja...");
 
     // Safety: Retry if data missing
     if (typeof menuData === 'undefined' || !menuData.openingHours) {
-        console.warn("menuData not ready. Retrying in 500ms...");
-        setTimeout(updateStoreStatus, 500);
-        return;
+        logDebug("menuData INDEFINIDO. Tentando novamente em 500ms...");
+        if (window.menuData) {
+            logDebug("Achei window.menuData! Usando...");
+            menuData = window.menuData;
+        } else {
+            setTimeout(updateStoreStatus, 500);
+            return;
+        }
     }
 
     try {
         const now = new Date();
-        const dayIndex = now.getDay(); // 0 = Sunday
+        const dayIndex = now.getDay();
         const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        logDebug(`Dia: ${dayIndex}, Hora (min): ${currentTime}`);
 
         const hours = menuData.openingHours[dayIndex];
 
         if (!hours || !hours.active) {
+            logDebug("Loja FECHADA hoje (configuração).");
             statusDot.className = 'status-dot closed';
             statusText.innerText = 'Fechado hoje';
             statusDot.style.animation = 'none';
@@ -65,24 +95,26 @@ function updateStoreStatus() {
 
         const [openH, openM] = hours.open.split(':').map(Number);
         const [closeH, closeM] = hours.close.split(':').map(Number);
-
         const openTime = openH * 60 + openM;
         const closeTime = closeH * 60 + closeM;
 
-        // Logic for crossing midnight could be added here if needed, 
-        // but for now standard range check:
+        logDebug(`Horário: ${hours.open} - ${hours.close} (${openTime} - ${closeTime})`);
+
         if (currentTime >= openTime && currentTime < closeTime) {
+            logDebug("STATUS: ABERTO");
             statusDot.className = 'status-dot open';
             statusText.innerText = 'Aberto agora';
             statusDot.style.animation = 'pulse 1.5s infinite';
         } else {
+            logDebug("STATUS: FECHADO");
             statusDot.className = 'status-dot closed';
             statusText.innerText = `Fechado • Abre às ${hours.open}`;
             statusDot.style.animation = 'none';
         }
     } catch (e) {
+        logDebug("ERRO FATAL no updateStoreStatus: " + e.message);
         console.error("Store status error:", e);
-        statusText.innerText = "Erro";
+        statusText.innerText = "Erro no Script";
     }
 }
 
