@@ -22,22 +22,13 @@ const modalPrice = document.getElementById('modal-price');
 const modalQty = document.getElementById('modal-qty');
 const modalObs = document.getElementById('modal-obs');
 
-// --- DEBUGGER VISUAL ---
+// --- DEBUGGER (Hidden) ---
 function logDebug(msg) {
-    let debugBox = document.getElementById('debug-box');
-    if (!debugBox) {
-        debugBox = document.createElement('div');
-        debugBox.id = 'debug-box';
-        debugBox.style.cssText = "position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.8); color:#0f0; padding:10px; font-family:monospace; font-size:12px; z-index:9999;";
-        document.body.appendChild(debugBox);
-    }
-    const time = new Date().toLocaleTimeString();
-    debugBox.innerHTML += `<div>[${time}] ${msg}</div>`;
     console.log(`[DEBUG] ${msg}`);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    logDebug("DOM Loaded. Iniciando script...");
+    console.log("DOM Loaded. Iniciando script...");
     init();
 });
 
@@ -48,8 +39,35 @@ function init() {
     updateCartUI();
     renderNeighborhoods();
     updateStoreStatus();
+
+    // Attempt to sync with live VPS data
+    fetchDynamicMenu();
+
     setInterval(updateStoreStatus, 60000);
     logDebug("Init concluído. Intervalo configurado.");
+}
+
+async function fetchDynamicMenu() {
+    logDebug("Tentando sincronizar com VPS...");
+    try {
+        // Use the VPS URL directly since we know it
+        const response = await fetch('https://zap.dasilvadocumentos.com.br/api/menu');
+        if (!response.ok) throw new Error('Falha na API: ' + response.status);
+
+        const liveData = await response.json();
+
+        if (liveData && liveData.openingHours) {
+            window.menuData = liveData;
+            logDebug("🔥 SUCESSO: Dados sincronizados com VPS!");
+            // Re-render components that depend on data
+            renderNeighborhoods();
+            updateStoreStatus();
+        } else {
+            logDebug("⚠️ Aviso: API retornou dados inválidos.");
+        }
+    } catch (e) {
+        logDebug("❌ Erro ao sincronizar (Usando dados locais): " + e.message);
+    }
 }
 
 // --- Store Status (Open/Closed) ---
