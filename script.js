@@ -31,6 +31,8 @@ function init() {
     updateCartUI();
     renderNeighborhoods();
     updateStoreStatus(); // Sync open/closed status
+    // Update status every minute
+    setInterval(updateStoreStatus, 60000);
 }
 
 // --- Store Status (Open/Closed) ---
@@ -38,6 +40,11 @@ function updateStoreStatus() {
     const statusDot = document.getElementById('store-status-dot');
     const statusText = document.getElementById('store-status-text');
     if (!statusDot || !statusText) return;
+
+    if (typeof menuData === 'undefined') {
+        setTimeout(updateStoreStatus, 500); // Retry if not loaded
+        return;
+    }
 
     const now = new Date();
     const dayIndex = now.getDay(); // 0 = Sunday
